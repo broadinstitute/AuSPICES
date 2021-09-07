@@ -1,0 +1,12 @@
+{ "_commenton_exclude_plates":"List plates if you want to exclude them from run.",
+  "exclude_plates":[],
+  "_commenton_include_plates":"List plates if you want to only run them and exclude all others from run.",
+  "include_plates":[],
+  "project_name":"2021_04_26_Production",
+  "batch": "2021_06_14_Batch6",
+  "bucket": "jump-cellpainting",
+  "IllumPipelineName":"JUMP_illum_LoadData.cppipe",
+  "QCPipelineName":"JUMP_QC_LoadData.cppipe",
+  "SegmentPipelineName":"JUMP_segment_LoadData.cppipe",
+  "AnalysisPipelineName":"JUMP_analysis_v2.cppipe"
+}
