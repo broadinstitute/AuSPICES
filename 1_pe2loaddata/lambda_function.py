@@ -36,30 +36,22 @@ def lambda_handler(event, lambda_context):
     # (Eventually) Open yaml
     # (Eventually) Edit yaml to match xml
 
-    # Setup for pe2loaddata
-    if not os.path.exists(f"/mnt/efs/{project_name}/workspace/"):
-        os.mkdir(f"/mnt/efs/{project_name}/workspace/")
-    if not os.path.exists(f"/mnt/efs/{project_name}/workspace/log/{batch}"):
-        os.mkdir(f"/mnt/efs/{project_name}/workspace/log/{batch}")
-    if not os.path.exists(f"/mnt/efs/{project_name}/workspace/images"):
-        os.mkdir(f"/mnt/efs/{project_name}/workspace/images")
-    if not os.path.islink(f"/mnt/efs/{project_name}/workspace/images/{batch}"):
-        os.symlink(f"/bucket/projects/{project_name}/{batch}/images/", f"/mnt/efs/{project_name}/workspace/images/{batch}")
-
     # Trigger pe2loaddata
-    output = f"/mnt/efs/{project_name}/workspace/load_data_csv/{batch}/{plate}/load_data.csv"
-    index_directory = f"/mnt/efs/{project_name}/workspace/images/{batch}/{fullplate}/Images"
+    output = f"/tmp/{project_name}/workspace/load_data_csv/{batch}/{plate}/load_data.csv"
+    index_directory = f"s3://{bucket}/projects/{project_name}/{batch}/images/"
+    index_file = f"s3://{bucket}/projects/{project_name}/{batch}/images/{plate}/Images/Index.idx.xml"
     illum_directory = (
-        f"/home/ubuntu/bucket/projects/{project_name}/{batch}/illum/{plate}"
+        f"s3://{bucket}/projects/{project_name}/{batch}/illum/{plate}"
     )
-    illum_output = f"/mnt/efs/{project_name}/workspace/load_data_csv/{batch}/{plate}/load_data_with_illum.csv"
-    sub_string_out = f"mnt/efs/{project_name}/workspace/images/{batch}"
-    sub_string_in = f"bucket/projects/{project_name}/{batch}/images"
+    illum_output = f"/tmp/{project_name}/workspace/load_data_csv/{batch}/{plate}/load_data_with_illum.csv"
+    sub_string_out = f"s3://"
+    sub_string_in = f"bucket/"
 
     pe2loaddata(
     yamlpath,
     output,
     index_directory=index_directory,
+    index_file=index_file,
     illum=True,
     illum_directory=illum_directory,
     plate_id=plate,
