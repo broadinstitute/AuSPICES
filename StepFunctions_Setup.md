@@ -13,7 +13,8 @@ Input => :white_check_mark: Transform array items
         "trigger.$": "$$.Map.Item.Value",
         "project_name.$": "$.project_name",
         "batch.$": "$.batch",
-        "bucket.$": "$.bucket"
+        "bucket.$": "$.bucket",
+        "channeldict.$": "$.channeldict"
 }
 ```
 Output => ✓ ResultPath  
