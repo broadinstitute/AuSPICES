@@ -32,5 +32,5 @@ def lambda_handler(event, lambda_context):
             print ("Your include/exclude list filtered out all plates. Try again.")
             return
     else:
-        print ("Didn't find images. Check bucket & batch listed in config are correct.")
+        print ("Didn't find images. Check batch listed in config is correct.")
         return
