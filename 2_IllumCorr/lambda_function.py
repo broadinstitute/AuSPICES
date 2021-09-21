@@ -59,8 +59,5 @@ def lambda_handler(event, lambda_context):
 
     run_DCP.run_cluster(bucket, prefix, batch, len(platelist), config_dict)
 
-    # Write out current monitor
-    monitor_name = boto3_setup.upload_monitor(
-        bucket_name, prefix, batch, step, config_dict
-    )
-    return (monitor_name)
+    boto3_setup.create_sqs_alarms(config_dict)
+    

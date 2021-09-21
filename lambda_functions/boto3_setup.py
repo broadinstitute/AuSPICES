@@ -572,18 +572,30 @@ def startCluster(fleetfile, njobs, config_dict):
 #################################
 
 
-def upload_monitor(bucket_name, prefix, batch, step, config_dict):
-    s3 = boto3.client("s3")
-    json_on_bucket_name = (
-        prefix
-        + "monitors/"
-        + batch
-        + "/"
-        + step
-        + "/"
-        + config_dict["APP_NAME"]
-        + "SpotFleetRequestId.json"
-    )
-    with open("/tmp/" + config_dict["APP_NAME"] + "SpotFleetRequestId.json", "rb") as a:
-        s3.put_object(Body=a, Bucket=bucket_name, Key=json_on_bucket_name)
-    return json_on_bucket_name
+def create_sqs_alarms(config_dict):
+    import boto3
+    cloudwatch = boto3.client('cloudwatch')
+    metricnames = ['ApproximateNumberOfMessagesNotVisible', 'ApproximateNumberOfMessagesVisible']
+    for metric in metricnames:
+        response = cloudwatch.put_metric_alarm(
+            AlarmName = f"{metric}isZero",
+            AlarmDescription='string',
+            ActionsEnabled=True,
+            OKActions=[],
+            AlarmActions=["arn:aws:sns:us-east-1:500910614606:Monitor"],
+            InsufficientDataActions=[],
+            MetricName= metric,
+            Namespace='AWS/SQS',
+            Statistic='Average',
+            Dimensions=[
+                {
+                    "Name": "QueueName",
+                    "Value": f"{config_dict["APP_NAME"]}Queue"
+                }
+            ],
+            Period=300,
+            EvaluationPeriods=1,
+            DatapointsToAlarm=1,
+            Threshold=0,
+            ComparisonOperator='LessThanOrEqualToThreshold',
+            TreatMissingData='missing')
