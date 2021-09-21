@@ -10,3 +10,4 @@ ECS_CLUSTER = "default_cluster"
 # SQS QUEUE INFORMATION:
 SQS_DEAD_LETTER_QUEUE = "arn:aws:sqs:us-east-1:XXXXXXXXXXXX:DeadMessages"
 SQS_DUPLICATE_QUEUE = "PreventOverlappingStarts.fifo"
+SQS_MONITOR_QUEUE = "arn:aws:sns:us-east-1:XXXXXXXXXXXX:Monitor"

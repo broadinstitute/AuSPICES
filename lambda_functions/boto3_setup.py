@@ -573,7 +573,6 @@ def startCluster(fleetfile, njobs, config_dict):
 
 
 def create_sqs_alarms(config_dict):
-    import boto3
     cloudwatch = boto3.client('cloudwatch')
     metricnames = ['ApproximateNumberOfMessagesNotVisible', 'ApproximateNumberOfMessagesVisible']
     for metric in metricnames:
@@ -582,7 +581,7 @@ def create_sqs_alarms(config_dict):
             AlarmDescription='string',
             ActionsEnabled=True,
             OKActions=[],
-            AlarmActions=["arn:aws:sns:us-east-1:500910614606:Monitor"],
+            AlarmActions=[SQS_MONITOR_QUEUE],
             InsufficientDataActions=[],
             MetricName= metric,
             Namespace='AWS/SQS',
