@@ -36,16 +36,17 @@ config_dict = {
     "NECESSARY_STRING": "",
 }
 
+
 def lambda_handler(event, context):
     prefix = f"projects/{event['project_name']}/{event['batch']}/images/"
-    bucket = event['bucket']
+    bucket = event["bucket"]
     config_dict["APP_NAME"] = event["project_name"] + "_QC"
     pipeline_name = event["QCPipelineName"]
     project_name = event["project_name"]
 
     # Include/Exclude Plates
-    exclude_plates = event['exclude_plates']
-    include_plates = event['include_plates']
+    exclude_plates = event["exclude_plates"]
+    include_plates = event["include_plates"]
     platelist = event["platelist"]
     if "exclude_plates":
         platelist = [i for i in platelist if i not in exclude_plates]
@@ -67,5 +68,7 @@ def lambda_handler(event, context):
 
     # Run the monitor
     run_DCP.run_monitor(bucket_name, prefix, batch, step, config_dict)
-    monitor_name = boto3_setup.upload_monitor(bucket_name, prefix, batch, step, config_dict)
-    return (monitor_name)
+    monitor_name = boto3_setup.upload_monitor(
+        bucket_name, prefix, batch, step, config_dict
+    )
+    return monitor_name

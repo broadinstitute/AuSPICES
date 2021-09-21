@@ -36,14 +36,14 @@ config_dict = {
 
 def lambda_handler(event, lambda_context):
     prefix = f"projects/{event['project_name']}/{event['batch']}/images/"
-    bucket = event['bucket']
+    bucket = event["bucket"]
     config_dict["APP_NAME"] = event["project_name"] + "_Illum"
     pipeline_name = event["IllumPipelineName"]
     project_name = event["project_name"]
 
     # Include/Exclude Plates
-    exclude_plates = event['exclude_plates']
-    include_plates = event['include_plates']
+    exclude_plates = event["exclude_plates"]
+    include_plates = event["include_plates"]
     platelist = event["platelist"]
     if "exclude_plates":
         platelist = [i for i in platelist if i not in exclude_plates]
@@ -60,4 +60,3 @@ def lambda_handler(event, lambda_context):
     run_DCP.run_cluster(bucket, prefix, batch, len(platelist), config_dict)
 
     boto3_setup.create_sqs_alarms(config_dict)
-    

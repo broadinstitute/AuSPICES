@@ -123,6 +123,7 @@ def generate_fiji_task_definition(config_dict):
     ]
     return task_definition
 
+
 def update_ecs_task_definition(ecs, ECS_TASK_NAME, config_dict, type):
     if type == "cellprofiler":
         task_definition = generate_task_definition(config_dict)
@@ -573,28 +574,29 @@ def startCluster(fleetfile, njobs, config_dict):
 
 
 def create_sqs_alarms(config_dict):
-    cloudwatch = boto3.client('cloudwatch')
-    metricnames = ['ApproximateNumberOfMessagesNotVisible', 'ApproximateNumberOfMessagesVisible']
+    cloudwatch = boto3.client("cloudwatch")
+    metricnames = [
+        "ApproximateNumberOfMessagesNotVisible",
+        "ApproximateNumberOfMessagesVisible",
+    ]
     for metric in metricnames:
         response = cloudwatch.put_metric_alarm(
-            AlarmName = f"{metric}isZero",
-            AlarmDescription='string',
+            AlarmName=f"{metric}isZero",
+            AlarmDescription="string",
             ActionsEnabled=True,
             OKActions=[],
             AlarmActions=[SQS_MONITOR_QUEUE],
             InsufficientDataActions=[],
-            MetricName= metric,
-            Namespace='AWS/SQS',
-            Statistic='Average',
+            MetricName=metric,
+            Namespace="AWS/SQS",
+            Statistic="Average",
             Dimensions=[
-                {
-                    "Name": "QueueName",
-                    "Value": f"{config_dict["APP_NAME"]}Queue"
-                }
+                {"Name": "QueueName", "Value": f"{config_dict['APP_NAME']}Queue"}
             ],
             Period=300,
             EvaluationPeriods=1,
             DatapointsToAlarm=1,
             Threshold=0,
-            ComparisonOperator='LessThanOrEqualToThreshold',
-            TreatMissingData='missing')
+            ComparisonOperator="LessThanOrEqualToThreshold",
+            TreatMissingData="missing",
+        )
