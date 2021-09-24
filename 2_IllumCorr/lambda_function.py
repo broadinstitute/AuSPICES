@@ -1,5 +1,3 @@
-import json
-import os
 import sys
 import boto3
 
@@ -7,13 +5,8 @@ sys.path.append("/opt/jump-cellpainting-lambda")
 
 import run_DCP
 import create_batch_jobs
-import boto3_setup
 
 s3 = boto3.client("s3")
-
-# Step information
-metadata_file_name = "/tmp/metadata.json"
-step = "2"
 
 # AWS Configuration Specific to this Function
 config_dict = {
@@ -35,28 +28,29 @@ config_dict = {
 
 
 def lambda_handler(event, lambda_context):
-    prefix = f"projects/{event['project_name']}/{event['batch']}/images/"
-    bucket = event["bucket"]
-    config_dict["APP_NAME"] = event["project_name"] + "_Illum"
-    pipeline_name = event["IllumPipelineName"]
-    project_name = event["project_name"]
+    prefix = f"projects/{event['input']['project_name']}/workspace/"
+    bucket = event["input"]["bucket"]
+    batch = event["input"]["batch"]
+    config_dict["APP_NAME"] = event["input"]["project_name"] + "_Illum"
+    pipeline_name = event["input"]["IllumPipelineName"]
+    project_name = event["input"]["project_name"]
 
     # Include/Exclude Plates
-    exclude_plates = event["exclude_plates"]
-    include_plates = event["include_plates"]
-    platelist = event["platelist"]
-    if "exclude_plates":
+    exclude_plates = event["input"]["exclude_plates"]
+    include_plates = event["input"]["include_plates"]
+    platelist = []
+    for x in event["input"]["Output_0"]["Payload"]:
+        platelist.append(x["plate"])
+    if exclude_plates:
         platelist = [i for i in platelist if i not in exclude_plates]
-    if "include_plates":
+    if include_plates:
         platelist = include_plates
 
     # Run DCP
     run_DCP.run_setup(bucket, prefix, batch, config_dict)
 
-    create_batch_jobs.create_batch_jobs_2(
-        project_name, pipeline_name, platelist, batchsuffix
-    )
+    create_batch_jobs.create_batch_jobs_2(project_name, pipeline_name, platelist, batch)
 
     run_DCP.run_cluster(bucket, prefix, batch, len(platelist), config_dict)
 
-    boto3_setup.create_sqs_alarms(config_dict)
+    run_DCP.create_sqs_alarms(config_dict)

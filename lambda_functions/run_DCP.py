@@ -34,7 +34,9 @@ def grab_batch_config(bucket_name, prefix, batch):
         with open("/tmp/configAWS.py", "wb") as f:
             s3.download_fileobj(bucket_name, our_config, f)
     except botocore.exceptions.ClientError as error:
-        print("Config files for this batch haven't been uploaded to S3.")
+        print(
+            f"Config files for this batch haven't been uploaded to S3. Upload them to {our_config}"
+        )
         return
 
 
@@ -47,3 +49,9 @@ def grab_fleet_file(bucket_name, prefix, batch):
     except botocore.exceptions.ClientError as error:
         print("Error grabbing fleet file.")
         return
+
+
+def create_sqs_alarms(config_dict):
+    import boto3_setup
+
+    boto3_setup.create_sqs_alarms(config_dict)

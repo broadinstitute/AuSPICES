@@ -129,8 +129,6 @@ def update_ecs_task_definition(ecs, ECS_TASK_NAME, config_dict, type):
         task_definition = generate_task_definition(config_dict)
     if type == "FIJI":
         task_definition = generate_fiji_task_definition(config_dict)
-    if type == "pe2":
-        task_definition = generate_pe2_task_definition(config_dict)
     ecs.register_task_definition(
         family=ECS_TASK_NAME,
         containerDefinitions=task_definition["containerDefinitions"],
@@ -582,16 +580,15 @@ def create_sqs_alarms(config_dict):
     for metric in metricnames:
         response = cloudwatch.put_metric_alarm(
             AlarmName=f"{metric}isZero",
-            AlarmDescription="string",
             ActionsEnabled=True,
             OKActions=[],
-            AlarmActions=[SQS_MONITOR_QUEUE],
+            AlarmActions=[MONITOR_SNS],
             InsufficientDataActions=[],
             MetricName=metric,
             Namespace="AWS/SQS",
             Statistic="Average",
             Dimensions=[
-                {"Name": "QueueName", "Value": f"{config_dict['APP_NAME']}Queue"}
+                {"Name": "QueueName", "Value": f"{config_dict['APP_NAME']}_IllumQueue"}
             ],
             Period=300,
             EvaluationPeriods=1,

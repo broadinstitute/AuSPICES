@@ -23,31 +23,27 @@ columns = range(1, 25)
 sites = range(1, 10)
 
 
-def create_batch_jobs_2(project_name, pipeline_name, platelist, batchsuffix):
-    illumqueue = JobQueue(project_name + "_Illum")
+def create_batch_jobs_2(project_name, pipeline_name, platelist, batch):
+    illumqueue = JobQueue(project_name + "_IllumQueue")
     startpath = os.path.join("projects", project_name)
     for toillum in platelist:
         templateMessage_illum = {
             "Metadata": "Metadata_Plate=" + toillum,
             "pipeline": os.path.join(
-                startpath, "workspace/pipelines", batchsuffix, pipeline_name
+                startpath, "workspace/pipelines", batch, pipeline_name
             ),
-            "output": os.path.join(startpath, batchsuffix, "illum"),
-            "input": os.path.join(startpath, "workspace/qc", batchsuffix, "rules"),
+            "output": os.path.join(startpath, batch, "illum"),
+            "input": os.path.join(startpath, "workspace/qc", batch, "rules"),
             "data_file": os.path.join(
-                startpath,
-                "workspace/load_data_csv",
-                batchsuffix,
-                toillum,
-                "load_data.csv",
+                startpath, "workspace/load_data_csv", batch, toillum, "load_data.csv",
             ),
         }
         illumqueue.scheduleBatch(templateMessage_illum)
     print("Illum job submitted. Check your queue")
 
 
-def create_batch_jobs_3(project_name, pipeline_name, platelist, batchsuffix):
-    qcqueue = JobQueue(project_name + "_QC")
+def create_batch_jobs_3(project_name, pipeline_name, platelist, batch):
+    qcqueue = JobQueue(project_name + "_QCQueue")
     startpath = os.path.join("projects", project_name)
     for toqc in platelist:
         for eachrow in rows:
@@ -59,19 +55,17 @@ def create_batch_jobs_3(project_name, pipeline_name, platelist, batchsuffix):
                     + eachrow
                     + "%02d" % eachcol,
                     "pipeline": os.path.join(
-                        startpath, "workspace/pipelines", batchsuffix, pipeline_name
+                        startpath, "workspace/pipelines", batch, pipeline_name
                     ),
                     "output": os.path.join(
-                        startpath, "workspace/qc/", batchsuffix, "results"
+                        startpath, "workspace/qc/", batch, "results"
                     ),
                     "output_structure": "Metadata_Plate/Metadata_Plate-Metadata_Well",
-                    "input": os.path.join(
-                        startpath, "workspace/qc", batchsuffix, "rules"
-                    ),
+                    "input": os.path.join(startpath, "workspace/qc", batch, "rules"),
                     "data_file": os.path.join(
                         startpath,
                         "workspace/load_data_csv",
-                        batchsuffix,
+                        batch,
                         toqc,
                         "load_data.csv",
                     ),
@@ -80,12 +74,8 @@ def create_batch_jobs_3(project_name, pipeline_name, platelist, batchsuffix):
     print("QC job submitted. Check your queue")
 
 
-def create_batch_jobs_4():
-    print()
-
-
-def create_batch_jobs_5(project_name, pipeline_name, platelist, batchsuffix):
-    qcqueue = JobQueue(projectname + "_Segment")
+def create_batch_jobs_5(project_name, pipeline_name, platelist, batch):
+    qcqueue = JobQueue(projectname + "_SegmentQueue")
     startpath = os.path.join("projects", project_name)
     for toqc in platelist:
         for eachrow in rows:
@@ -97,18 +87,16 @@ def create_batch_jobs_5(project_name, pipeline_name, platelist, batchsuffix):
                     + eachrow
                     + "%02d" % eachcol,
                     "pipeline": os.path.join(
-                        startpath, "workspace/pipelines", batchsuffix, pipeline_name
+                        startpath, "workspace/pipelines", batch, pipeline_name
                     ),
                     "output": os.path.join(
-                        startpath, "workspace/segment", batchsuffix, "results"
+                        startpath, "workspace/segment", batch, "results"
                     ),
-                    "input": os.path.join(
-                        startpath, "workspace/qc", batchsuffix, "rules"
-                    ),
+                    "input": os.path.join(startpath, "workspace/qc", batch, "rules"),
                     "data_file": os.path.join(
                         startpath,
                         "workspace/load_data_csv",
-                        batchsuffix,
+                        batch,
                         toqc,
                         "load_data_with_illum.csv",
                     ),
@@ -117,12 +105,8 @@ def create_batch_jobs_5(project_name, pipeline_name, platelist, batchsuffix):
     print("QC job submitted. Check your queue")
 
 
-def create_batch_jobs_6():
-    print()
-
-
-def create_batch_jobs_7(project_name, pipeline_name, platelist, batchsuffix):
-    analysisqueue = JobQueue(projectname + "_Analysis")
+def create_batch_jobs_7(project_name, pipeline_name, platelist, batch):
+    analysisqueue = JobQueue(projectname + "_AnalysisQueue")
     startpath = os.path.join("projects", project_name)
     for toanalyze in platelist:
         for eachrow in rows:
@@ -137,19 +121,17 @@ def create_batch_jobs_7(project_name, pipeline_name, platelist, batchsuffix):
                         + ",Metadata_Site="
                         + str(eachsite),
                         "pipeline": os.path.join(
-                            startpath, "workspace/pipelines", batchsuffix, pipeline_name
+                            startpath, "workspace/pipelines", batch, pipeline_name
                         ),
-                        "output": os.path.join(
-                            startpath, "workspace/analysis", batchsuffix
-                        ),
+                        "output": os.path.join(startpath, "workspace/analysis", batch),
                         "output_structure": "Metadata_Plate/analysis/Metadata_Plate-Metadata_Well-Metadata_Site",
                         "input": os.path.join(
-                            startpath, "workspace/qc", batchsuffix, "rules"
+                            startpath, "workspace/qc", batch, "rules"
                         ),
                         "data_file": os.path.join(
                             startpath,
                             "workspace/load_data_csv",
-                            batchsuffix,
+                            batch,
                             toanalyze,
                             "load_data_with_illum.csv",
                         ),
