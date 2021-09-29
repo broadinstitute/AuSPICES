@@ -1,50 +1,54 @@
-import json
-import os
-import sys
 import boto3
+import datetime
 
-sys.path.append("/opt/jump-cellpainting-lambda")
+ecs = boto3.client("ecs")
+ec2 = boto3.client("ec2")
+cloudwatch = boto3.client("cloudwatch")
 
-import run_DCP
-import create_batch_jobs
-import helpful_functions
 
-s3 = boto3.client("s3")
+def killdeadAlarms(fleetId, monitorapp):
+    checkdates = [
+        datetime.datetime.now().strftime("%Y-%m-%d"),
+        (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%Y-%m-%d"),
+    ]
+    todel = []
+    for eachdate in checkdates:
+        datedead = ec2.describe_spot_fleet_request_history(
+            SpotFleetRequestId=fleetId, StartTime=eachdate
+        )
+        for eachevent in datedead["HistoryRecords"]:
+            if eachevent["EventType"] == "instanceChange":
+                if eachevent["EventInformation"]["EventSubType"] == "terminated":
+                    todel.append(eachevent["EventInformation"]["InstanceId"])
+    # used to be a for loop check formatting correct for delete_alarms
+    # cmd='aws cloudwatch delete-alarms --alarm-name '+monitorapp+'_'+eachmachine
+    cloudwatch.delete_alarms(AlarmNames=todel)
+    print("Old alarms deleted")
 
-# Step information
-metadata_file_name = "/tmp/metadata.json"
+
+def seeIfLogExportIsDone(logExportId):
+    while True:
+        result = cloudwatch.describe_export_tasks(taskId=logExportId)
+        if result["exportTasks"][0]["status"]["code"] != "PENDING":
+            if result["exportTasks"][0]["status"]["code"] != "RUNNING":
+                print(result["exportTasks"][0]["status"]["code"])
+                break
+                time.sleep(30)
+
+
+def downscaleSpotFleet(queue, spotFleetID):
+    visible, nonvisible = queue.returnLoad()
+    status = ec2.describe_spot_fleet_instances(SpotFleetRequestId=spotFleetID)
+    if nonvisible < len(status["ActiveInstances"]):
+        result = ec2.modify_spot_fleet_request(
+            ExcessCapacityTerminationPolicy="noTermination",
+            TargetCapacity=str(nonvisible),
+            SpotFleetRequestId=spotFleetID,
+        )
 
 
 def lambda_handler(event, lambda_context):
-
-    monitorInfo = loadConfig(monitor_name)
-    monitorcluster = monitorInfo["MONITOR_ECS_CLUSTER"]
-    monitorapp = monitorInfo["MONITOR_APP_NAME"]
-    fleetId = monitorInfo["MONITOR_FLEET_ID"]
-    queueId = monitorInfo["MONITOR_QUEUE_NAME"]
-
-    ec2 = boto3.client("ec2")
-    cloud = boto3.client("cloudwatch")
-    # Step 1: Create job and count messages periodically
-    queue = JobQueue(name=queueId)
-    while queue.pendingLoad():
-        # Once an hour (except at midnight) check for terminated machines and delete their alarms.
-        # This is slooooooow, which is why we don't just do it at the end
-        curtime = datetime.datetime.now().strftime("%H%M")
-        if curtime[-2:] == "00":
-            if curtime[:2] != "00":
-                killdeadAlarms(fleetId, monitorapp, ec2, cloud)
-        # Once every 10 minutes, check if all jobs are in process, and if so scale the spot fleet size to match
-        # the number of jobs still in process WITHOUT force terminating them.
-        # This can help keep costs down if, for example, you start up 100+ machines to run a large job, and
-        # 1-10 jobs with errors are keeping it rattling around for hours.
-        if curtime[-1:] == "9":
-            downscaleSpotFleet(queue, fleetId, ec2)
-        time.sleep(MONITOR_TIME)
-
-    # Step 2: When no messages are pending, stop service
-    # Reload the monitor info, because for long jobs new fleets may have been started, etc
-    monitorInfo = loadConfig(monitor_name)
+    monitorInfo = loadConfig(sys.argv[2])
     monitorcluster = monitorInfo["MONITOR_ECS_CLUSTER"]
     monitorapp = monitorInfo["MONITOR_APP_NAME"]
     fleetId = monitorInfo["MONITOR_FLEET_ID"]
@@ -53,35 +57,30 @@ def lambda_handler(event, lambda_context):
     loggroupId = monitorInfo["MONITOR_LOG_GROUP_NAME"]
     starttime = monitorInfo["MONITOR_START_TIME"]
 
-    ecs = boto3.client("ecs")
+    # if message is visible == 0, downscale machines
+    killdeadAlarms(fleetId, monitorapp)
+    downscaleSpotFleet(queue, fleetId)
+    return
+
+    # if message in progress == 0, cleanup
+
     ecs.update_service(
-        cluster=monitorcluster, service=monitorapp + "Service", desiredCount=0
+        cluster=monitorcluster, service=f"{monitorapp}Service", desiredCount=0,
     )
     print("Service has been downscaled")
 
-    # Step3: Delete the alarms from active machines and machines that have died since the last sweep
-    # This is in a try loop, because while it is important, we don't want to not stop the spot fleet
-    try:
-        result = ec2.describe_spot_fleet_instances(SpotFleetRequestId=fleetId)
-        instancelist = result["ActiveInstances"]
-        while len(instancelist) > 0:
-            to_del = instancelist[:100]
-            del_alarms = [monitorapp + "_" + x["InstanceId"] for x in to_del]
-            cloud.delete_alarms(AlarmNames=del_alarms)
-            time.sleep(10)
-            instancelist = instancelist[100:]
-        killdeadAlarms(fleetId, monitorapp)
-    except:
-        pass
+    # Delete the alarms from active machines and machines that have died.
+    active_dictionary = ec2.describe_spot_fleet_instances(SpotFleetRequestId=fleetId)
+    # active_instances needs to be list of alarms
+    cloudwatch.delete_alarms(AlarmNames=active_instances)
+    killdeadAlarms(fleetId, monitorapp)
 
-    # Step 4: Read spot fleet id and terminate all EC2 instances
-    print("Shutting down spot fleet", fleetId)
+    # Read spot fleet id and terminate all EC2 instances
     ec2.cancel_spot_fleet_requests(
-        SpotFleetRequestIds=[fleetId], TerminateInstances=True
+        DryRun=False, SpotFleetRequestIds=[fleetId], TerminateInstances=True
     )
-    print("Job done.")
+    print("Fleet shut down.")
 
-    # Step 5. Release other resources
     # Remove SQS queue, ECS Task Definition, ECS Service
     ECS_TASK_NAME = monitorapp + "Task"
     ECS_SERVICE_NAME = monitorapp + "Service"
@@ -90,21 +89,48 @@ def lambda_handler(event, lambda_context):
     print("Deleting service")
     ecs.delete_service(cluster=monitorcluster, service=ECS_SERVICE_NAME)
     print("De-registering task")
-    deregistertask(ECS_TASK_NAME, ecs)
+    taskArns = ecs.list_task_definitions()
+    for task in taskArns["taskDefinitionArns"]:
+        fulltaskname = eachtask.split("/")[-1]
+        ecs.deregister_task_definition(taskDefinition=fulltaskname)
+
     print("Removing cluster if it's not the default and not otherwise in use")
-    removeClusterIfUnused(monitorcluster, ecs)
+    if clusterName != "default":
+        result = ecs.describe_clusters(clusters=[clusterName])
+    if (
+        sum(
+            [
+                result["clusters"][0]["pendingTasksCount"],
+                result["clusters"][0]["runningTasksCount"],
+                result["clusters"][0]["activeServicesCount"],
+            ]
+        )
+        == 0
+    ):
+        ecs.delete_cluster(cluster=clusterName)
 
     # Step 6: Export the logs to S3
-    logs = boto3.client("logs")
-
-    print("Transfer of CellProfiler logs to S3 initiated")
-    export_logs(logs, loggroupId, starttime, bucketId)
-
-    print("Transfer of per-instance to S3 initiated")
-    export_logs(logs, loggroupId + "_perInstance", starttime, bucketId)
-
+    cloudwatch.create_export_task(
+        taskName=loggroupId,
+        logGroupName=loggroupId,
+        fromTime=starttime,
+        to=%(time.time()*1000),
+        destination=bucketId,
+        destinationPrefix=f"exportedlogs/{loggroupId}",
+    )
+    print("Log transfer 1 to S3 initiated")
+    seeIfLogExportIsDone(result["taskId"])
+    cloudwatch.create_export_task(
+        taskName=f"{loggroupId}_perInstance",
+        logGroupName=f"{loggroupId}_perInstance",
+        fromTime=starttime,
+        to=%(time.time()*1000),
+        destination=bucketId,
+        destinationPrefix=f"exportedlogs/{loggroupId}",
+    )
+    result = getAWSJsonOutput(cmd)
+    print("Log transfer 2 to S3 initiated")
+    seeIfLogExportIsDone(result["taskId"])
     print("All export tasks done")
 
-
-    # Send success notification
-    aws stepfunctions send-task-success --task-token $token
+    #Remove alarms that triggered monitor
