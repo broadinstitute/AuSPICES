@@ -56,7 +56,7 @@ def lambda_handler(event, lambda_context):
 
     # Trigger pe2loaddata
     output = f"/tmp/load_data.csv"
-    index_directory = f"s3://{bucket}/projects/{project_name}/{batch}/images/"
+    index_directory = f"s3://{bucket}/projects/{project_name}/{batch}/images/{plate}"
     index_file = f"s3://{bucket}/projects/{project_name}/{batch}/images/{fullplate}/Images/Index.idx.xml"
     illum_directory = f"projects/{project_name}/{batch}/illum/{plate}"
     illum_output = f"/tmp/load_data_with_illum.csv"
