@@ -570,6 +570,11 @@ def startCluster(fleetfile, njobs, config_dict):
 # SERVICE 4: MONITOR JOB
 #################################
 
+def upload_monitor(bucket_name, prefix, config_dict):
+    s3 = boto3.client("s3")
+    json_on_bucket_name = (f"{prefix}monitors/stepfunctions/{config_dict["APP_NAME"]}SpotFleetRequestId.json")
+    with open(f"/tmp/{config_dict["APP_NAME"]}SpotFleetRequestId.json", "rb") as a:
+        s3.put_object(Body=a, Bucket=bucket_name, Key=json_on_bucket_name)
 
 def create_sqs_alarms(config_dict):
     cloudwatch = boto3.client("cloudwatch")
@@ -588,7 +593,7 @@ def create_sqs_alarms(config_dict):
             Namespace="AWS/SQS",
             Statistic="Average",
             Dimensions=[
-                {"Name": "QueueName", "Value": f"{config_dict['APP_NAME']}_IllumQueue"}
+                {"Name": "QueueName", "Value": f"{config_dict['APP_NAME']}Queue"}
             ],
             Period=300,
             EvaluationPeriods=1,

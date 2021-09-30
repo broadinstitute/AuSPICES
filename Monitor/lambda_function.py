@@ -131,30 +131,6 @@ def lambda_handler(event, lambda_context):
         ):
             ecs.delete_cluster(cluster=clusterName)
 
-        # Step 6: Export the logs to S3
-        cloudwatch.create_export_task(
-            taskName=loggroupId,
-            logGroupName=loggroupId,
-            fromTime=starttime,
-            to=%(time.time()*1000),
-            destination=bucketId,
-            destinationPrefix=f"exportedlogs/{loggroupId}",
-        )
-        print("Log transfer 1 to S3 initiated")
-        seeIfLogExportIsDone(result["taskId"])
-        cloudwatch.create_export_task(
-            taskName=f"{loggroupId}_perInstance",
-            logGroupName=f"{loggroupId}_perInstance",
-            fromTime=starttime,
-            to=%(time.time()*1000),
-            destination=bucketId,
-            destinationPrefix=f"exportedlogs/{loggroupId}",
-        )
-        result = getAWSJsonOutput(cmd)
-        print("Log transfer 2 to S3 initiated")
-        seeIfLogExportIsDone(result["taskId"])
-        print("All export tasks done")
-
         # Remove alarms that triggered monitor
         cloudwatch.delete_alarms(
             AlarmNames=[
