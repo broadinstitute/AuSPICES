@@ -9,6 +9,7 @@ cloudwatch = boto3.client("cloudwatch")
 
 bucket = BUCKET_NAME
 
+
 def killdeadAlarms(fleetId, monitorapp):
     checkdates = [
         datetime.datetime.now().strftime("%Y-%m-%d"),
@@ -51,13 +52,15 @@ def downscaleSpotFleet(queue, spotFleetID):
 
 
 def lambda_handler(event, lambda_context):
-    queueId = event['Trigger']['Dimensions'][0]['value']
-    project = queueId.rsplit('_',1)[0]
+    queueId = event["Trigger"]["Dimensions"][0]["value"]
+    project = queueId.rsplit("_", 1)[0]
 
     # Download monitor file
     monitor_file_name = f"{queueId.split('Queue')[0]}SpotFleetRequestId.json"
     monitor_local_name = f"/tmp/{monitor_file_name}"
-    monitor_on_bucket_name = f"projects/{project}/workspace/monitors/stepfunctions/{monitorfilename}"
+    monitor_on_bucket_name = (
+        f"projects/{project}/workspace/monitors/stepfunctions/{monitorfilename}"
+    )
 
     with open(monitor_local_name, "wb") as f:
         try:
@@ -75,25 +78,28 @@ def lambda_handler(event, lambda_context):
     starttime = monitorInfo["MONITOR_START_TIME"]
 
     # If no visible messages, downscale machines
-    if event['Trigger']['MetricName'] == 'ApproximateNumberOfMessagesVisible':
+    if event["Trigger"]["MetricName"] == "ApproximateNumberOfMessagesVisible":
         killdeadAlarms(fleetId, monitorapp)
         downscaleSpotFleet(queueId, fleetId)
 
     # If no messages in progress, cleanup
-    if event['Trigger']['MetricName'] == 'ApproximateNumberOfMessagesNotVisible':
+    if event["Trigger"]["MetricName"] == "ApproximateNumberOfMessagesNotVisible":
         ecs.update_service(
             cluster=monitorcluster, service=f"{monitorapp}Service", desiredCount=0,
         )
         print("Service has been downscaled")
 
         # Delete the alarms from active machines and machines that have died.
-        active_dictionary = ec2.describe_spot_fleet_instances(SpotFleetRequestId=fleetId)
+        active_dictionary = ec2.describe_spot_fleet_instances(
+            SpotFleetRequestId=fleetId
+        )
         # active_instances needs to be list of alarms
         cloudwatch.delete_alarms(AlarmNames=active_instances)
         killdeadAlarms(fleetId, monitorapp)
 
         # Read spot fleet id and terminate all EC2 instances
-        ec2.cancel_spot_fleet_requests(SpotFleetRequestIds=[fleetId], TerminateInstances=True
+        ec2.cancel_spot_fleet_requests(
+            SpotFleetRequestIds=[fleetId], TerminateInstances=True
         )
         print("Fleet shut down.")
 
@@ -150,4 +156,9 @@ def lambda_handler(event, lambda_context):
         print("All export tasks done")
 
         # Remove alarms that triggered monitor
-        cloudwatch.delete_alarms(AlarmNames=['ApproximateNumberOfMessagesVisibleisZero', 'ApproximateNumberOfMessagesNotVisibleisZero'])
+        cloudwatch.delete_alarms(
+            AlarmNames=[
+                "ApproximateNumberOfMessagesVisibleisZero",
+                "ApproximateNumberOfMessagesNotVisibleisZero",
+            ]
+        )
