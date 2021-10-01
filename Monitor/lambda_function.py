@@ -110,14 +110,14 @@ def lambda_handler(event, lambda_context):
         ECS_SERVICE_NAME = monitorapp + "Service"
 
         print("Deleting existing queue.")
-        queueoutput=sqs.list_queues(QueueNamePrefix=queueId)
+        queueoutput = sqs.list_queues(QueueNamePrefix=queueId)
         try:
-            if len(queueoutput["QueueUrls"])==1:
-                queueUrl=queueoutput["QueueUrls"][0]
-            else: #In case we have "AnalysisQueue" and "AnalysisQueue1" and only want to delete the first of those
+            if len(queueoutput["QueueUrls"]) == 1:
+                queueUrl = queueoutput["QueueUrls"][0]
+            else:  # In case we have "AnalysisQueue" and "AnalysisQueue1" and only want to delete the first of those
                 for eachUrl in queueoutput["QueueUrls"]:
-                    if eachUrl.split('/')[-1] == queueName:
-                        queueUrl=eachUrl
+                    if eachUrl.split("/")[-1] == queueName:
+                        queueUrl = eachUrl
             sqs.delete_queue(QueueUrl=queueUrl)
         except KeyError:
             print("Can't find queue to delete.")
@@ -126,7 +126,7 @@ def lambda_handler(event, lambda_context):
         try:
             ecs.delete_service(cluster=monitorcluster, service=ECS_SERVICE_NAME)
         except:
-            print ("Couldn't delete service.")
+            print("Couldn't delete service.")
 
         print("De-registering task")
         taskArns = ecs.list_task_definitions()
@@ -150,7 +150,7 @@ def lambda_handler(event, lambda_context):
             ecs.delete_cluster(cluster=monitorcluster)
 
         # Remove alarms that triggered monitor
-        print ("Removing alarms that triggered Monitor")
+        print("Removing alarms that triggered Monitor")
         cloudwatch.delete_alarms(
             AlarmNames=[
                 "ApproximateNumberOfMessagesVisibleisZero",
