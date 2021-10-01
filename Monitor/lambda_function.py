@@ -43,7 +43,17 @@ def seeIfLogExportIsDone(logExportId):
 
 
 def downscaleSpotFleet(queue, spotFleetID):
-    visible, nonvisible = queue.returnLoad()
+    response = sqs.get_queue_url(QueueName=queue)
+    queueUrl = response["QueueUrl"]
+    response = sqs.get_queue_attributes(
+        QueueUrl=queueUrl,
+        AttributeNames=[
+            "ApproximateNumberOfMessages",
+            "ApproximateNumberOfMessagesNotVisible",
+        ],
+    )
+    visible = int(response["Attributes"]["ApproximateNumberOfMessages"])
+    nonvisible = int(response["Attributes"]["ApproximateNumberOfMessagesNotVisible"])
     status = ec2.describe_spot_fleet_instances(SpotFleetRequestId=spotFleetID)
     if nonvisible < len(status["ActiveInstances"]):
         result = ec2.modify_spot_fleet_request(
