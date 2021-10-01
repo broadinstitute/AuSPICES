@@ -1,13 +1,15 @@
 import boto3
 import datetime
 import botocore
+import json
 
 s3 = boto3.client("s3")
 ecs = boto3.client("ecs")
 ec2 = boto3.client("ec2")
 cloudwatch = boto3.client("cloudwatch")
+sqs = boto3.client("sqs")
 
-bucket = BUCKET_NAME
+bucket = "BUCKET_NAME"
 
 
 def killdeadAlarms(fleetId, monitorapp):
@@ -59,7 +61,7 @@ def lambda_handler(event, lambda_context):
     monitor_file_name = f"{queueId.split('Queue')[0]}SpotFleetRequestId.json"
     monitor_local_name = f"/tmp/{monitor_file_name}"
     monitor_on_bucket_name = (
-        f"projects/{project}/workspace/monitors/stepfunctions/{monitorfilename}"
+        f"projects/{project}/workspace/monitors/stepfunctions/{monitor_file_name}"
     )
 
     with open(monitor_local_name, "wb") as f:
@@ -106,19 +108,35 @@ def lambda_handler(event, lambda_context):
         # Remove SQS queue, ECS Task Definition, ECS Service
         ECS_TASK_NAME = monitorapp + "Task"
         ECS_SERVICE_NAME = monitorapp + "Service"
+
         print("Deleting existing queue.")
-        removequeue(queueId)
+        queueoutput=sqs.list_queues(QueueNamePrefix=queueId)
+        try:
+            if len(queueoutput["QueueUrls"])==1:
+                queueUrl=queueoutput["QueueUrls"][0]
+            else: #In case we have "AnalysisQueue" and "AnalysisQueue1" and only want to delete the first of those
+                for eachUrl in queueoutput["QueueUrls"]:
+                    if eachUrl.split('/')[-1] == queueName:
+                        queueUrl=eachUrl
+            sqs.delete_queue(QueueUrl=queueUrl)
+        except KeyError:
+            print("Can't find queue to delete.")
+
         print("Deleting service")
-        ecs.delete_service(cluster=monitorcluster, service=ECS_SERVICE_NAME)
+        try:
+            ecs.delete_service(cluster=monitorcluster, service=ECS_SERVICE_NAME)
+        except:
+            print ("Couldn't delete service.")
+
         print("De-registering task")
         taskArns = ecs.list_task_definitions()
-        for task in taskArns["taskDefinitionArns"]:
+        for eachtask in taskArns["taskDefinitionArns"]:
             fulltaskname = eachtask.split("/")[-1]
             ecs.deregister_task_definition(taskDefinition=fulltaskname)
 
         print("Removing cluster if it's not the default and not otherwise in use")
-        if clusterName != "default":
-            result = ecs.describe_clusters(clusters=[clusterName])
+        if monitorcluster != "default":
+            result = ecs.describe_clusters(clusters=[monitorcluster])
         if (
             sum(
                 [
@@ -129,9 +147,10 @@ def lambda_handler(event, lambda_context):
             )
             == 0
         ):
-            ecs.delete_cluster(cluster=clusterName)
+            ecs.delete_cluster(cluster=monitorcluster)
 
         # Remove alarms that triggered monitor
+        print ("Removing alarms that triggered Monitor")
         cloudwatch.delete_alarms(
             AlarmNames=[
                 "ApproximateNumberOfMessagesVisibleisZero",
