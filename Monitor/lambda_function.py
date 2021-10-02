@@ -90,12 +90,12 @@ def lambda_handler(event, lambda_context):
     starttime = monitorInfo["MONITOR_START_TIME"]
 
     # If no visible messages, downscale machines
-    if event["Trigger"]["MetricName"] == "ApproximateNumberOfMessagesVisible":
+    if "ApproximateNumberOfMessagesVisible" in event["Records"][0]["Sns"]["Message"]:
         killdeadAlarms(fleetId, monitorapp)
         downscaleSpotFleet(queueId, fleetId)
 
     # If no messages in progress, cleanup
-    if event["Trigger"]["MetricName"] == "ApproximateNumberOfMessagesNotVisible":
+    if "ApproximateNumberOfMessagesNotVisible" in event["Records"][0]["Sns"]["Message"]:
         ecs.update_service(
             cluster=monitorcluster, service=f"{monitorapp}Service", desiredCount=0,
         )
@@ -105,7 +105,9 @@ def lambda_handler(event, lambda_context):
         active_dictionary = ec2.describe_spot_fleet_instances(
             SpotFleetRequestId=fleetId
         )
-        # active_instances needs to be list of alarms
+        active_instances = []
+        for instance in active_dictionary["ActiveInstances"]:
+            active_instances.append(instance["InstanceId"])
         cloudwatch.delete_alarms(AlarmNames=active_instances)
         killdeadAlarms(fleetId, monitorapp)
 
