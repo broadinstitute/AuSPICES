@@ -12,7 +12,7 @@ sqs = boto3.client("sqs")
 bucket = "BUCKET_NAME"
 
 
-def killdeadAlarms(fleetId, monitorapp):
+def killdeadAlarms(fleetId, monitorapp, project):
     checkdates = [
         datetime.datetime.now().strftime("%Y-%m-%d"),
         (datetime.datetime.now() - datetime.timedelta(days=1)).strftime("%Y-%m-%d"),
@@ -26,8 +26,7 @@ def killdeadAlarms(fleetId, monitorapp):
             if eachevent["EventType"] == "instanceChange":
                 if eachevent["EventInformation"]["EventSubType"] == "terminated":
                     todel.append(eachevent["EventInformation"]["InstanceId"])
-    # used to be a for loop check formatting correct for delete_alarms
-    # cmd='aws cloudwatch delete-alarms --alarm-name '+monitorapp+'_'+eachmachine
+    todel = [f"{project}_{x}" for x in todel]
     cloudwatch.delete_alarms(AlarmNames=todel)
     print("Old alarms deleted")
 
@@ -91,7 +90,7 @@ def lambda_handler(event, lambda_context):
 
     # If no visible messages, downscale machines
     if "ApproximateNumberOfMessagesVisible" in event["Records"][0]["Sns"]["Message"]:
-        killdeadAlarms(fleetId, monitorapp)
+        killdeadAlarms(fleetId, monitorapp, project)
         downscaleSpotFleet(queueId, fleetId)
 
     # If no messages in progress, cleanup
@@ -109,7 +108,7 @@ def lambda_handler(event, lambda_context):
         for instance in active_dictionary["ActiveInstances"]:
             active_instances.append(instance["InstanceId"])
         cloudwatch.delete_alarms(AlarmNames=active_instances)
-        killdeadAlarms(fleetId, monitorapp)
+        killdeadAlarms(fleetId, monitorapp, project)
 
         # Read spot fleet id and terminate all EC2 instances
         ec2.cancel_spot_fleet_requests(
