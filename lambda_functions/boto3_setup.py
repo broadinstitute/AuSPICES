@@ -572,8 +572,8 @@ def startCluster(fleetfile, njobs, config_dict):
 
 def upload_monitor(bucket_name, prefix, config_dict):
     s3 = boto3.client("s3")
-    json_on_bucket_name = (f"{prefix}monitors/stepfunctions/{config_dict["APP_NAME"]}SpotFleetRequestId.json")
-    with open(f"/tmp/{config_dict["APP_NAME"]}SpotFleetRequestId.json", "rb") as a:
+    json_on_bucket_name = f"{prefix}monitors/stepfunctions/{config_dict['APP_NAME']}SpotFleetRequestId.json"
+    with open(f"/tmp/{config_dict['APP_NAME']}SpotFleetRequestId.json", "rb") as a:
         s3.put_object(Body=a, Bucket=bucket_name, Key=json_on_bucket_name)
 
 def create_sqs_alarms(config_dict):
@@ -584,7 +584,7 @@ def create_sqs_alarms(config_dict):
     ]
     for metric in metricnames:
         response = cloudwatch.put_metric_alarm(
-            AlarmName=f"{metric}isZero",
+            AlarmName=f"{metric}isZero_{config_dict['APP_NAME']}",
             ActionsEnabled=True,
             OKActions=[],
             AlarmActions=[MONITOR_SNS],

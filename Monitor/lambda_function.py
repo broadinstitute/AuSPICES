@@ -8,6 +8,7 @@ ecs = boto3.client("ecs")
 ec2 = boto3.client("ec2")
 cloudwatch = boto3.client("cloudwatch")
 sqs = boto3.client("sqs")
+sfn = boto3.client("sfn")
 
 bucket = "BUCKET_NAME"
 
@@ -63,7 +64,9 @@ def downscaleSpotFleet(queue, spotFleetID):
 
 
 def lambda_handler(event, lambda_context):
-    queueId = event["Trigger"]["Dimensions"][0]["value"]
+    messagestring = (data['Records'][0]['Sns']['Message'])
+    messagedict = json.loads(messagestring)
+    queueId = messagedict['Trigger']['Dimensions'][0]['value']
     project = queueId.rsplit("_", 1)[0]
 
     # Download monitor file
@@ -168,3 +171,6 @@ def lambda_handler(event, lambda_context):
                 "ApproximateNumberOfMessagesNotVisibleisZero",
             ]
         )
+
+        print("Sending success token to StepFunction.")
+        sfn.send_task_success(taskToken='string', output='string')
