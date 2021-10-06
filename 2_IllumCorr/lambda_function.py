@@ -28,18 +28,18 @@ config_dict = {
 
 
 def lambda_handler(event, lambda_context):
-    prefix = f"projects/{event['input']['project_name']}/workspace/"
-    bucket = event["input"]["bucket"]
-    batch = event["input"]["batch"]
-    config_dict["APP_NAME"] = event["input"]["project_name"] + "_Illum"
-    pipeline_name = event["input"]["IllumPipelineName"]
-    project_name = event["input"]["project_name"]
+    prefix = f"projects/{event['project_name']}/workspace/"
+    bucket = event["bucket"]
+    batch = event["batch"]
+    config_dict["APP_NAME"] = event["project_name"] + "_Illum"
+    pipeline_name = event["IllumPipelineName"]
+    project_name = event["project_name"]
 
     # Include/Exclude Plates
-    exclude_plates = event["input"]["exclude_plates"]
-    include_plates = event["input"]["include_plates"]
+    exclude_plates = event["exclude_plates"]
+    include_plates = event["include_plates"]
     platelist = []
-    for x in event["input"]["Output_0"]["Payload"]:
+    for x in event["Output_0"]["Payload"]:
         shortplate = x["plate"].split('__')[0]
         platelist.append(shortplate)
     if exclude_plates:

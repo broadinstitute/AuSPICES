@@ -1,22 +1,12 @@
-import datetime
-import os, sys
-import json
+import sys
 import boto3
-import numpy
-import pandas
 
 sys.path.append("/opt/jump-cellpainting-lambda")
 
 import run_DCP
 import create_batch_jobs
-import helpful_functions
 
 s3 = boto3.client("s3")
-sqs = boto3.client("sqs")
-
-# Step information
-metadata_file_name = "/tmp/metadata.json"
-step = "5"
 
 # AWS Configuration Specific to this Function
 config_dict = {
@@ -38,37 +28,30 @@ config_dict = {
 
 
 def lambda_handler(event, context):
-    prefix = f"projects/{event['project_name']}/{event['batch']}/images/"
-    bucket = event["bucket"]
-    config_dict["APP_NAME"] = event["project_name"] + "_Segment"
-    pipeline_name = event["SegmentPipelineName"]
     project_name = event["project_name"]
+    batch = event["batch"]
+    prefix = f"projects/{event['project_name']}/workspace/"
+    bucket = event["bucket"]
+    config_dict["APP_NAME"] = f"{project_name}_Segment"
+    pipeline_name = event["SegmentPipelineName"]
 
     # Include/Exclude Plates
     exclude_plates = event["exclude_plates"]
     include_plates = event["include_plates"]
-    platelist = event["platelist"]
-    if "exclude_plates":
+    platelist = []
+    for x in event["Output_0"]["Payload"]:
+        shortplate = x["plate"].split('__')[0]
+        platelist.append(shortplate)
+    if exclude_plates:
         platelist = [i for i in platelist if i not in exclude_plates]
-    if "include_plates":
+    if include_plates:
         platelist = include_plates
 
-    # now let's do our stuff!
-    app_name = run_DCP.run_setup(bucket_name, prefix, batch, config_dict)
+    # Run DCP
+    run_DCP.run_setup(bucket, prefix, batch, config_dict)
 
-    # make the jobs
-    create_batch_jobs.create_batch_jobs_5(
-        image_prefix, batch, pipeline_name, plate_and_well_list, app_name
-    )
+    create_batch_jobs.create_batch_jobs_5(project_name, pipeline_name, platelist, batch)
 
-    # Start a cluster
-    run_DCP.run_cluster(
-        bucket_name, prefix, batch, len(plate_and_well_list), config_dict,
-    )
+    run_DCP.run_cluster(bucket, prefix, batch, len(platelist)*384, config_dict)
 
-    # Run the monitor
-    run_DCP.run_monitor(bucket_name, prefix, batch, step, config_dict)
-    monitor_name = boto3_setup.upload_monitor(
-        bucket_name, prefix, batch, step, config_dict
-    )
-    return monitor_name
+    run_DCP.setup_monitor(bucket, prefix, config_dict)
