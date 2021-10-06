@@ -55,4 +55,4 @@ def setup_monitor(bucket, prefix, config_dict):
     import boto3_setup
 
     boto3_setup.create_sqs_alarms(config_dict)
-    boto3_setup.upload_monitor(bucket, prefix, batch, config_dict)
+    boto3_setup.upload_monitor(bucket, prefix, config_dict)
