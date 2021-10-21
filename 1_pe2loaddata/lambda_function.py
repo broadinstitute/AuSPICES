@@ -25,6 +25,15 @@ def lambda_handler(event, lambda_context):
             "488 long": "OrigRNA",
             "Brightfield": "OrigBrightfield",
         }
+    elif channeldict == "Standard_1BF_V":
+        channelmap = {
+            "HOECHST 33342": "OrigDNA",
+            "Alexa 568": "OrigAGP",
+            "Alexa 647": "OrigMito",
+            "Alexa 488": "OrigER",
+            "488 long": "OrigRNA",
+            "Brightfield CP": "OrigBrightfield",
+        }
     elif channeldict == "Standard_3BF":
         channelmap = {
             "HOECHST 33342": "OrigDNA",
