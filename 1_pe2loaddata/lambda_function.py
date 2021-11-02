@@ -3,6 +3,7 @@ import botocore
 import shutil
 from pe2loaddata.__main__ import headless as pe2loaddata
 import yaml
+import pandas as pd
 
 s3 = boto3.client("s3")
 
@@ -65,8 +66,16 @@ def lambda_handler(event, lambda_context):
 
     # Trigger pe2loaddata
     output = f"/tmp/load_data.csv"
-    index_directory = f"s3://{bucket}/projects/{project_name}/{batch}/images/{plate}"
-    index_file = f"s3://{bucket}/projects/{project_name}/{batch}/images/{fullplate}/Images/Index.idx.xml"
+    if event["zproject"]:
+        index_directory = (
+            f"s3://{bucket}/projects/{project_name}/{batch}/images_unprojected/{plate}"
+        )
+        index_file = f"s3://{bucket}/projects/{project_name}/{batch}/images_unprojected/{fullplate}/Images/Index.idx.xml"
+    else:
+        index_directory = (
+            f"s3://{bucket}/projects/{project_name}/{batch}/images/{plate}"
+        )
+        index_file = f"s3://{bucket}/projects/{project_name}/{batch}/images/{fullplate}/Images/Index.idx.xml"
     illum_directory = f"projects/{project_name}/{batch}/illum/{plate}"
     illum_output = f"/tmp/load_data_with_illum.csv"
     sub_string_out = "projects"
@@ -91,7 +100,35 @@ def lambda_handler(event, lambda_context):
         f"projects/{project_name}/workspace/load_data_csv/{batch}/{plate}/load_data.csv"
     )
     illum_output_on_bucket_name = f"projects/{project_name}/workspace/load_data_csv/{batch}/{plate}/load_data_with_illum.csv"
-    with open(output, "rb") as a:
-        s3.put_object(Body=a, Bucket=bucket, Key=output_on_bucket_name)
-    with open(illum_output, "rb") as a:
-        s3.put_object(Body=a, Bucket=bucket, Key=illum_output_on_bucket_name)
+    zproj_output_on_bucket_name = f"projects/{project_name}/workspace/load_data_csv/{batch}/{plate}/load_data_unprojected.csv"
+
+    if event["zproject"]:
+        print("CSVs will include z-projection.")
+        with open(output, "rb") as a:
+            s3.put_object(Body=a, Bucket=bucket, Key=zproj_output_on_bucket_name)
+
+        csv_df = pd.read_csv(output)
+        final_z = max(csv_df["Metadata_PlaneID"].unique())
+        csv_df = csv_df.loc[csv_df["Metadata_PlaneID"] == final_z]
+        csv_df = csv_df.replace(regex=r"images_unprojected", value="images")
+
+        csv_with_illum_df = pd.read_csv(illum_output)
+        csv_with_illum_df = csv_with_illum_df.loc[
+            csv_with_illum_df["Metadata_PlaneID"] == final_z
+        ]
+        csv_with_illum_df = csv_with_illum_df.replace(
+            regex=r"images_unprojected", value="images"
+        )
+
+        csv_df.to_csv(output, index=False)
+        with open(output, "rb") as a:
+            s3.put_object(Body=a, Bucket=bucket, Key=output_on_bucket_name)
+        csv_with_illum_df.to_csv(illum_output, index=False)
+        with open(illum_output, "rb") as a:
+            s3.put_object(Body=a, Bucket=bucket, Key=illum_output_on_bucket_name)
+    else:
+        print("CSVs will not include z-projection.")
+        with open(output, "rb") as a:
+            s3.put_object(Body=a, Bucket=bucket, Key=output_on_bucket_name)
+        with open(illum_output, "rb") as a:
+            s3.put_object(Body=a, Bucket=bucket, Key=illum_output_on_bucket_name)

@@ -14,10 +14,11 @@ Input => :white_check_mark: Transform array items
         "project_name.$": "$.project_name",
         "batch.$": "$.batch",
         "bucket.$": "$.bucket",
-        "channeldict.$": "$.channeldict"
+        "channeldict.$": "$.channeldict",
+        "zproject.$": "$.zproject"
 }
 ```
-Output => ✓ ResultPath  
+Output => :white_check_mark: ResultPath  
 &ensp;&ensp;&ensp;Combine original input with result = `$.Trigger`
 
 ## 1_pe2loaddata

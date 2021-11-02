@@ -5,11 +5,12 @@
   "project_name":"2021_04_26_Production",
   "batch": "2021_07_12_Batch8",
   "bucket": "jump-cellpainting",
+  "zproject": "False",
   "IllumPipelineName":"JUMP_illum_LoadData.cppipe",
   "QCPipelineName":"JUMP_QC_LoadData.cppipe",
   "SegmentPipelineName":"JUMP_segment_LoadData.cppipe",
   "AnalysisPipelineName":"JUMP_analysis_v4.cppipe",
-  "_commenton_channeldict":"Available maps: Standard_1BF, Standard_3BF",
+  "_commenton_channeldict":"Available maps: Standard_1BF, Standard_1BF_V", "Standard_3BF",
   "_commenton_channeldict":"If your maps doesn't already exist, enter it in as dictionary",
   "channeldict":"Standard_3BF"
 }

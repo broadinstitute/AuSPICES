@@ -4,7 +4,14 @@ s3 = boto3.client("s3")
 
 
 def lambda_handler(event, lambda_context):
-    prefix = f"projects/{event['project_name']}/{event['batch']}/images/"
+    if event["zproject"]:
+        print("Images will be z-projected.")
+        prefix = (
+            f"projects/{event['project_name']}/{event['batch']}/images_unprojected/"
+        )
+    else:
+        print("Images will not be z-projected.")
+        prefix = f"projects/{event['project_name']}/{event['batch']}/images/"
     bucket = event["bucket"]
     platedict = s3.list_objects_v2(Bucket=bucket, Prefix=prefix, Delimiter="/")
 
