@@ -4,21 +4,19 @@ import time
 ec2 = boto3.client("ec2")
 
 def check_if_named(instance_id):
-    allinstances = ec2.describe_instances()
-    for instance in allinstances['Reservations']:
-        if instance['Instances'][0]['InstanceId'] == instance_id:
-            if 'Tags' in instance['Instances'][0]:
-                for tag in instance['Instances'][0]['Tags']:
-                    if 'Name' in tag['Key']:
-                        instance_name = tag['Value']
-                        print (f"{instance_id} has a name - {instance_name}.")
-                        return True
-                    else:
-                        print (f"{instance_id} does not have a name.")
-                        return False
+    instance = ec2.describe_instances(InstanceIds=[instance_id])
+    if 'Tags' in instance['Reservations'][0]['Instances'][0]:
+        for tag in instance['Reservations'][0]['Instances'][0]['Tags']:
+            if 'Name' in tag['Key']:
+                instance_name = tag['Value']
+                print (f"{instance_id} has a name - {instance_name}.")
+                return True
             else:
                 print (f"{instance_id} does not have a name.")
                 return False
+    else:
+        print (f"{instance_id} does not have a name.")
+        return False
 
 def lambda_handler(event, lambda_context):
     instance_id = event['detail']['instance-id']
