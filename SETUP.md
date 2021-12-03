@@ -4,12 +4,17 @@
 ### Create deadletter queue.  
 ### Create sns.  
 ### Create IAM role:
-Create an IAM Role for your step functions.  
+#### Create an IAM Role for your step functions.  
 Entity = AWS service  
 Use case = Step Functions  
 (Automatically adds permission policy AWSLambdaRole)  
 Role name = StepFunctions  
 Attach permissions policies: CloudWatchLogsFullAccess  
+#### Create an IAM Role for your lambda functions.
+Entity = AWS service
+Use case = Lambda
+Role name = LambdaFullAccess
+Attach permissions policies: AmazonSQSFullAccess, AmazonS3FullAccess, AmazonEC2SpotFleetTaggingRole, AmazonECS_FullAccess, AWSLambdaExecute, AWSLambdaSQSQueueExecutionRole, AWSLambdaVPCAccessExecutionRole, AmazonSNSFullAccess, AWSLambdaRole, AWSLambda_FullAccess
 
 ### Create layers:
 Create a t2.micro instance in EC2 for lambda layer creation. AME = Amazon Linux 2 AMI (HVM), SSD Volume Type. Use the same network, subnet, and IAM as you usually use. Install python3 and update it to 3.8 or 3.9.  
