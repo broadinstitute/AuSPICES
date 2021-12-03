@@ -7,23 +7,43 @@ Kill_Nameless_Machines will handle on-demand EC2 instances or instances created 
 If two nameless machines from the same spot fleet request are killed within an hour, it will check to see if that spot fleet request has any named machines.
 If the spot request has no named machines, it will cancel the spot fleet request.
 
+Any time that Kill_Nameless_Machines kills a machine or cancels a spot fleet request, it sends an email with notification of that action.
+
 
 # Setup Killed_Machines_List Queue
 
-Create a new SQS queue that will keep track of killed instances.
+*Create a new SQS queue that will keep track of killed instances.*
 
-## Create queue
-Standard
-**Name**:Killed_Machines_List
+## Create Queue
+Standard  
+**Name**: Killed_Machines_List
 
-###Configuration
+### Configuration
 **Visibility timeout**: 5 minutes
 
-Copy the URL for the Killed_Machines_List SQS queue (e.g. https://sqs.us-east-1.amazonaws.com/############/Killed_Machines_List)
+Copy the URL for the Killed_Machines_List SQS queue so that you can paste it into your lambda function (e.g. https://sqs.us-east-1.amazonaws.com/123456789123/Killed_Machines_List)
+
+# Setup Email Notifications
+
+*Create a new SNS topic and subscription for email notifications.*
+
+Create an SNS topic  
+**Topic Name**: Kill_Nameless_Machines_Email_Notification  
+**Type**: Standard
+
+Create an SNS subscription  
+**Topic ARN**: arn:aws:sns:us-east-1:123456789123:Kill_Nameless_Machines_Email_Notification  
+**Protocol**: Email  
+**Endpoint**: email_address_you_want_to_notify@yourdomain.com
+
+Your endpoint email address will get an automated notification from AWS requesting confirmation.
+Confirm it.
+
+Copy the Topic Arn for the SNS topic so that you can paste it into your lambda function (e.g. arn:aws:sns:us-east-1:123456789123:Kill_Nameless_Machines_Email_Notification)
 
 # Setup Lambda Function
 
-Create a new lambda function.
+*Create a new lambda function.*
 
 ### Basic information
 **Function name**:`Kill_Nameless_Machines`  
@@ -38,14 +58,17 @@ Create a new lambda function.
 #### Asynchronous invocation:
 **Retry attempts**: 0
 
-Copy Kill_Nameless_Machines/`lambda_function.py` into the code area.
-Edit `queue_url = https://sqs.us-east-1.amazonaws.com/123456789123/Killed_Machines_List` to match your queue.
-Deploy.
+### Configure the lambda function code
+* Copy Kill_Nameless_Machines/`lambda_function.py` into the code area.
+* Edit `queue_url = https://sqs.us-east-1.amazonaws.com/123456789123/Killed_Machines_List` to match your queue.
+* Edit `bucket = yourbucket` to match your bucket.
+* Edit `sns_arn = arn:aws:sns:us-east-1:123456789123:Kill_Nameless_Machines_Email_Notification` to match your Topic ARN.
+* Deploy.
 
 
 # Setup EventBridge
 
-Create a new rule in Amazon EventBridge that will trigger the lambda function.
+*Create a new rule in Amazon EventBridge that will trigger the lambda function.*
 
 ### Name and description:
 **Name**: launch_ec2_instance
