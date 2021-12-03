@@ -4,12 +4,15 @@ from collections import Counter
 
 ec2 = boto3.client("ec2")
 sqs = boto3.client("sqs")
+sns = boto3.client("sns")
 
-# Set the queue for each
+# Set for each implementation of function
 queue_url = "https://sqs.us-east-1.amazonaws.com/500910614606/Killed_Machines_List"
+bucket = 'jump-cellpainting'
+sns_arn = 'arn:aws:sns:us-east-1:500910614606:Kill_Nameless_Machines_Email_Notification'
 
 
-def check_if_named_or_spot_or_spot(instance_id):
+def check_if_named_or_spot(instance_id):
     instance = ec2.describe_instances(InstanceIds=[instance_id])
     if "Tags" in instance["Reservations"][0]["Instances"][0]:
         for tag in instance["Reservations"][0]["Instances"][0]["Tags"]:
@@ -98,6 +101,7 @@ def lambda_handler(event, lambda_context):
                 activeinstances = ec2.describe_spot_fleet_instances(
                     SpotFleetRequestId=spot_request_id
                 )
+                has_named_instance = False
                 for active in activeinstances["ActiveInstances"]:
                     instance_id = instance["InstanceId"]
                     instance = ec2.describe_instances(InstanceIds=[instance_id])
@@ -105,16 +109,26 @@ def lambda_handler(event, lambda_context):
                     for tag in instance["Reservations"][0]["Instances"][0]["Tags"]:
                         if "Name" in tag["Key"]:
                             has_named_instance = True
-                        else:
-                            has_named_instance = False
-            # If no machines in spot fleet are named, kill it
-            if not has_named_instance:
-                print(
-                    f"{spot_request_id} has no named instances. Cancelling spot request."
-                )
-                ec2.cancel_spot_fleet_requests(
-                    SpotFleetRequestIds=[spot_request_id], TerminateInstances=True
-                )
+                # If no machines in spot fleet are named, kill it
+                if not has_named_instance:
+                    print(
+                        f"{spot_request_id} has no named instances. Cancelling spot request."
+                    )
+                    ec2.cancel_spot_fleet_requests(
+                        SpotFleetRequestIds=[spot_request_id], TerminateInstances=True
+                    )
+
+                    try:
+                        msg = f'Kill_Nameless_Machines just cancelled spot fleet request {spot_request_id} in {bucket}'
+                        sns.publish(TopicArn=sns_arn, Message=msg)
+                    except:
+                        print ('Failed at email notificaiton of cancelled spot fleet request')
 
         print(f"{instance_id} is nameless for too long after launch. Terminating.")
         ec2.terminate_instances(InstanceIds=[instance_id])
+
+        try:
+            msg = f'Kill_Nameless_Machines just terminated {instance_id} in {bucket}'
+            sns.publish(TopicArn=sns_arn, Message=msg)
+        except:
+            print ('Failed at email notificaiton of killed instance')
