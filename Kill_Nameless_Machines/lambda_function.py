@@ -103,7 +103,7 @@ def lambda_handler(event, lambda_context):
                 )
                 has_named_instance = False
                 for active in activeinstances["ActiveInstances"]:
-                    instance_id = instance["InstanceId"]
+                    instance_id = active["InstanceId"]
                     instance = ec2.describe_instances(InstanceIds=[instance_id])
                     # Check if any machines in spot fleet are named
                     for tag in instance["Reservations"][0]["Instances"][0]["Tags"]:
@@ -122,7 +122,7 @@ def lambda_handler(event, lambda_context):
                         msg = f'Kill_Nameless_Machines just cancelled spot fleet request {spot_request_id} in {bucket}'
                         sns.publish(TopicArn=sns_arn, Message=msg)
                     except:
-                        print ('Failed at email notificaiton of cancelled spot fleet request')
+                        print ('Failed at email notification of cancelled spot fleet request')
 
         print(f"{instance_id} is nameless for too long after launch. Terminating.")
         ec2.terminate_instances(InstanceIds=[instance_id])
@@ -131,4 +131,4 @@ def lambda_handler(event, lambda_context):
             msg = f'Kill_Nameless_Machines just terminated {instance_id} in {bucket}'
             sns.publish(TopicArn=sns_arn, Message=msg)
         except:
-            print ('Failed at email notificaiton of killed instance')
+            print ('Failed at email notification of killed instance')
