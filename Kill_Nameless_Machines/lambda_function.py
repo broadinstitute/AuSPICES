@@ -15,21 +15,26 @@ sns_arn = 'arn:aws:sns:us-east-1:500910614606:Kill_Nameless_Machines_Email_Notif
 def check_if_named_or_spot(instance_id):
     instance = ec2.describe_instances(InstanceIds=[instance_id])
     if "Tags" in instance["Reservations"][0]["Instances"][0]:
+        tagkeys = []
         for tag in instance["Reservations"][0]["Instances"][0]["Tags"]:
-            if "Name" in tag["Key"]:
+            tagkeys.append(tag['Key'])
+            if tag['Key'] == 'Name':
                 instance_name = tag["Value"]
-                print(f"{instance_id} has a name - {instance_name}.")
-                named = True
-            else:
-                print(f"{instance_id} does not have a name.")
-                named = False
-
-            if "ec2spot" in tag["Key"]:
+            if tag['Key'] == 'aws:ec2spot:fleet-request-id':
                 spot_request_id = tag["Value"]
-                print(f"{instance_id} is in spot fleet {spot_request_id}.")
-            else:
-                spot_request_id = False
-                print(f"{instance_id} is not in a spot fleet.")
+
+        if "Name" in tagkeys:
+            print(f"{instance_id} has a name - {instance_name}.")
+            named = True
+        else:
+            print(f"{instance_id} does not have a name.")
+            named = False
+
+        if 'aws:ec2spot:fleet-request-id' in tagkeys:
+            print(f"{instance_id} is in spot fleet {spot_request_id}.")
+        else:
+            spot_request_id = False
+            print(f"{instance_id} is not in a spot fleet.")
     else:
         print(f"{instance_id} does not have a name and is not in a spot fleet.")
         named = False
