@@ -53,16 +53,22 @@ Copy the Topic Arn for the SNS topic so that you can paste it into your lambda f
 ### Configuration
 #### General configuration:  
 **Timeout**: 15 min  
+
 #### Triggers:
-(Triggers will auto-populate with the EventBridge event you create in the next step.)
+Trigger should auto-populate with the EventBridge event you create in the next step.
+If it does not:  
+**Trigger Configuration**: EventBridge  
+**Rule**: Existing rules
+**Existing rules:** launch_ec2_instance
+
 #### Asynchronous invocation:
 **Retry attempts**: 0
 
 ### Configure the lambda function code
 * Copy Kill_Nameless_Machines/`lambda_function.py` into the code area.
-* Edit `queue_url = https://sqs.us-east-1.amazonaws.com/123456789123/Killed_Machines_List` to match your queue.
-* Edit `bucket = yourbucket` to match your bucket.
-* Edit `sns_arn = arn:aws:sns:us-east-1:123456789123:Kill_Nameless_Machines_Email_Notification` to match your Topic ARN.
+* Edit `queue_url = 'https://sqs.region.amazonaws.com/123456789123/Killed_Machines_List'` to match your queue.
+* Edit `bucket = 'yourbucket'` to match your bucket.
+* Edit `sns_arn = 'arn:aws:sns:region:123456789123:Kill_Nameless_Machines_Email_Notification'` to match your Topic ARN.
 * Deploy.
 
 

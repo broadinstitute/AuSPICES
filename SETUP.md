@@ -14,7 +14,7 @@ Attach permissions policies: CloudWatchLogsFullAccess
 Entity = AWS service
 Use case = Lambda
 Role name = LambdaFullAccess
-Attach permissions policies: AmazonSQSFullAccess, AmazonS3FullAccess, AmazonEC2SpotFleetTaggingRole, AmazonECS_FullAccess, AWSLambdaExecute, AWSLambdaSQSQueueExecutionRole, AWSLambdaVPCAccessExecutionRole, AmazonSNSFullAccess, AWSLambdaRole, AWSLambda_FullAccess
+Attach permissions policies: AmazonSQSFullAccess, AmazonS3FullAccess, AmazonEC2SpotFleetTaggingRole, AmazonECS_FullAccess, AWSLambdaExecute, AWSLambdaSQSQueueExecutionRole, AmazonSNSFullAccess, AWSLambdaRole, AWSLambda_FullAccess
 
 ### Create layers:
 Create a t2.micro instance in EC2 for lambda layer creation. AME = Amazon Linux 2 AMI (HVM), SSD Volume Type. Use the same network, subnet, and IAM as you usually use. Install python3 and update it to 3.8 or 3.9.  
