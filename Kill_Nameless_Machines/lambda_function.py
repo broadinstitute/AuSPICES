@@ -7,9 +7,9 @@ sqs = boto3.client("sqs")
 sns = boto3.client("sns")
 
 # Set for each implementation of function
-queue_url = "https://sqs.us-east-1.amazonaws.com/500910614606/Killed_Machines_List"
-bucket = 'jump-cellpainting'
-sns_arn = 'arn:aws:sns:us-east-1:500910614606:Kill_Nameless_Machines_Email_Notification'
+queue_url = "https://sqs.region.amazonaws.com/123456789123/Killed_Machines_List"
+bucket = 'bucket-name'
+sns_arn = 'arn:aws:sns:region:123456789123:Kill_Nameless_Machines_Email_Notification'
 
 
 def check_if_named_or_spot(instance_id):
