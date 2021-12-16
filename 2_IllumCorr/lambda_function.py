@@ -28,30 +28,33 @@ config_dict = {
 
 
 def lambda_handler(event, lambda_context):
-    prefix = f"projects/{event['project_name']}/workspace/"
-    bucket = event["bucket"]
-    batch = event["batch"]
-    config_dict["APP_NAME"] = event["project_name"] + "_Illum"
-    pipeline_name = event["IllumPipelineName"]
-    project_name = event["project_name"]
+    if event['run_illum']:
+        prefix = f"projects/{event['project_name']}/workspace/"
+        bucket = event["bucket"]
+        batch = event["batch"]
+        config_dict["APP_NAME"] = event["project_name"] + "_Illum"
+        pipeline_name = event["IllumPipelineName"]
+        project_name = event["project_name"]
 
-    # Include/Exclude Plates
-    exclude_plates = event["exclude_plates"]
-    include_plates = event["include_plates"]
-    platelist = []
-    for x in event["Output_0"]["Payload"]:
-        shortplate = x["plate"].split('__')[0]
-        platelist.append(shortplate)
-    if exclude_plates:
-        platelist = [i for i in platelist if i not in exclude_plates]
-    if include_plates:
-        platelist = include_plates
+        # Include/Exclude Plates
+        exclude_plates = event["exclude_plates"]
+        include_plates = event["include_plates"]
+        platelist = []
+        for x in event["Output_0"]["Payload"]:
+            shortplate = x["plate"].split('__')[0]
+            platelist.append(shortplate)
+        if exclude_plates:
+            platelist = [i for i in platelist if i not in exclude_plates]
+        if include_plates:
+            platelist = include_plates
 
-    # Run DCP
-    run_DCP.run_setup(bucket, prefix, batch, config_dict)
+        # Run DCP
+        run_DCP.run_setup(bucket, prefix, batch, config_dict)
 
-    create_batch_jobs.create_batch_jobs_2(project_name, pipeline_name, platelist, batch)
+        create_batch_jobs.create_batch_jobs_2(project_name, pipeline_name, platelist, batch)
 
-    run_DCP.run_cluster(bucket, prefix, batch, len(platelist), config_dict)
+        run_DCP.run_cluster(bucket, prefix, batch, len(platelist), config_dict)
 
-    run_DCP.setup_monitor(bucket, prefix, config_dict)
+        run_DCP.setup_monitor(bucket, prefix, config_dict)
+    else:
+        print ('run_illum set to False. Skipping illum generation.')
