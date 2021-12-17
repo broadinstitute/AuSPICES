@@ -24,11 +24,11 @@ sites = range(1, 10)
 
 
 def create_batch_jobs_2(project_name, pipeline_name, platelist, batch):
-    illumqueue = JobQueue(project_name + "_IllumQueue")
+    illumqueue = JobQueue(f"{project_name}_IllumQueue")
     startpath = os.path.join("projects", project_name)
     for toillum in platelist:
         templateMessage_illum = {
-            "Metadata": "Metadata_Plate=" + toillum,
+            "Metadata": f"Metadata_Plate={toillum}",
             "pipeline": os.path.join(
                 startpath, "workspace/pipelines", batch, pipeline_name
             ),
@@ -43,17 +43,13 @@ def create_batch_jobs_2(project_name, pipeline_name, platelist, batch):
 
 
 def create_batch_jobs_3(project_name, pipeline_name, platelist, batch):
-    qcqueue = JobQueue(project_name + "_QCQueue")
+    qcqueue = JobQueue(f"{project_name}_QCQueue")
     startpath = os.path.join("projects", project_name)
     for toqc in platelist:
         for eachrow in rows:
             for eachcol in columns:
                 templateMessage_qc = {
-                    "Metadata": "Metadata_Plate="
-                    + toqc
-                    + ",Metadata_Well="
-                    + eachrow
-                    + "%02d" % eachcol,
+                    "Metadata": f"Metadata_Plate={toqc},Metadata_Well={eachrow}{eachcol:0>2}",
                     "pipeline": os.path.join(
                         startpath, "workspace/pipelines", batch, pipeline_name
                     ),
@@ -75,17 +71,13 @@ def create_batch_jobs_3(project_name, pipeline_name, platelist, batch):
 
 
 def create_batch_jobs_5(project_name, pipeline_name, platelist, batch):
-    qcqueue = JobQueue(projectname + "_SegmentQueue")
+    qcqueue = JobQueue(f"{projectname}_SegmentQueue")
     startpath = os.path.join("projects", project_name)
-    for toqc in platelist:
+    for tosegment in platelist:
         for eachrow in rows:
             for eachcol in columns:
                 templateMessage_qc = {
-                    "Metadata": "Metadata_Plate="
-                    + toqc
-                    + ",Metadata_Well="
-                    + eachrow
-                    + "%02d" % eachcol,
+                    "Metadata": f"Metadata_Plate={tosegment},Metadata_Well={eachrow}{eachcol:0>2}",
                     "pipeline": os.path.join(
                         startpath, "workspace/pipelines", batch, pipeline_name
                     ),
@@ -106,7 +98,7 @@ def create_batch_jobs_5(project_name, pipeline_name, platelist, batch):
 
 
 def create_batch_jobs_6(bucket, project_name, batch, platelist):
-    montagequeue = JobQueue(project_name) + "_MontageQueue"
+    montagequeue = JobQueue(f"{project_name}_MontageQueue")
     for tomontage in platelist:
         montageMessage = {
             "plate": tomontage,
@@ -119,20 +111,14 @@ def create_batch_jobs_6(bucket, project_name, batch, platelist):
 
 
 def create_batch_jobs_7(project_name, pipeline_name, platelist, batch):
-    analysisqueue = JobQueue(projectname + "_AnalysisQueue")
+    analysisqueue = JobQueue(f"{projectname}_AnalysisQueue")
     startpath = os.path.join("projects", project_name)
     for toanalyze in platelist:
         for eachrow in rows:
             for eachcol in columns:
                 for eachsite in sites:
                     templateMessage_analysis = {
-                        "Metadata": "Metadata_Plate="
-                        + toanalyze
-                        + ",Metadata_Well="
-                        + eachrow
-                        + "%02d" % eachcol
-                        + ",Metadata_Site="
-                        + str(eachsite),
+                        "Metadata": f"Metadata_Plate={toanalyze},Metadata_Well={eachrow}{eachcol:0>2},Metadata_Site={str(eachsite)}",
                         "pipeline": os.path.join(
                             startpath, "workspace/pipelines", batch, pipeline_name
                         ),
