@@ -105,6 +105,19 @@ def create_batch_jobs_5(project_name, pipeline_name, platelist, batch):
     print("QC job submitted. Check your queue")
 
 
+def create_batch_jobs_6(bucket, project_name, batch, platelist):
+    montagequeue = JobQueue(project_name) + "_MontageQueue"
+    for tomontage in platelist:
+        montageMessage = {
+            "plate": tomontage,
+            "bucket": bucket,
+            "project": project_name,
+            "batch": batch,
+        }
+        montagequeue.scheduleBatch(montageMessage)
+    print("Montage job submitted. Check your queue")
+
+
 def create_batch_jobs_7(project_name, pipeline_name, platelist, batch):
     analysisqueue = JobQueue(projectname + "_AnalysisQueue")
     startpath = os.path.join("projects", project_name)
