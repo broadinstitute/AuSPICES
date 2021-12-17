@@ -36,7 +36,7 @@ def generate_task_definition(config_dict):
                 "logConfiguration": {
                     "logDriver": "awslogs",
                     "options": {
-                        "awslogs-group": config_dict["APP_NAME"] + "_perInstance",
+                        "awslogs-group": f'{config_dict["APP_NAME"]}_perInstance',
                         "awslogs-region": AWS_REGION,
                         "awslogs-stream-prefix": config_dict["APP_NAME"],
                     },
@@ -90,7 +90,7 @@ def generate_fiji_task_definition(config_dict):
                 "logConfiguration": {
                     "logDriver": "awslogs",
                     "options": {
-                        "awslogs-group": config_dict["APP_NAME"] + "_perInstance",
+                        "awslogs-group": f'{config_dict["APP_NAME"]}_perInstance',
                         "awslogs-region": AWS_REGION,
                         "awslogs-stream-prefix": config_dict["APP_NAME"],
                     },
@@ -142,9 +142,9 @@ def get_or_create_cluster(ecs):
     if len(cluster) == 0:
         ecs.create_cluster(clusterName=ECS_CLUSTER)
         time.sleep(WAIT_TIME)
-        print(("Cluster " + ECS_CLUSTER + " created"))
+        print((f"Cluster {ECS_CLUSTER} created"))
     else:
-        print(("Cluster " + ECS_CLUSTER + " exists"))
+        print((f"Cluster {ECS_CLUSTER} exists"))
 
 
 def create_or_update_ecs_service(ecs, ECS_SERVICE_NAME, ECS_TASK_NAME):
@@ -154,7 +154,7 @@ def create_or_update_ecs_service(ecs, ECS_SERVICE_NAME, ECS_TASK_NAME):
     if len(service) > 0:
         print("Service exists. Removing")
         ecs.delete_service(cluster=ECS_CLUSTER, service=ECS_SERVICE_NAME)
-        print("Removed service " + ECS_SERVICE_NAME)
+        print(f"Removed service {ECS_SERVICE_NAME}")
         time.sleep(WAIT_TIME)
 
     print("Creating new service")
@@ -171,7 +171,7 @@ def get_queue_url(sqs, config_dict):
     result = sqs.list_queues()
     if "QueueUrls" in list(result.keys()):
         for u in result["QueueUrls"]:
-            if u.split("/")[-1] == (config_dict["APP_NAME"] + "Queue"):
+            if u.split("/")[-1] == (f'{config_dict["APP_NAME"]}Queue'):
                 return u
     return None
 
@@ -187,7 +187,7 @@ def get_or_create_queue(sqs, config_dict):
         + '","maxReceiveCount":"10"}',
         "VisibilityTimeout": str(config_dict["SQS_MESSAGE_VISIBILITY"]),
     }
-    SQS_QUEUE_NAME = config_dict["APP_NAME"] + "Queue"
+    SQS_QUEUE_NAME = f'{config_dict["APP_NAME"]}Queue'
     u = get_queue_url(sqs, config_dict)
     if u is None:
         print("Creating queue")
@@ -206,21 +206,21 @@ def loadConfig(configFile):
 
 def generateECSconfig(ECS_CLUSTER, APP_NAME, AWS_BUCKET, s3client):
     configfile = open("/tmp/configtemp.config", "w")
-    configfile.write("ECS_CLUSTER=" + ECS_CLUSTER + "\n")
+    configfile.write(f"ECS_CLUSTER={ECS_CLUSTER}\n")
     configfile.write('ECS_AVAILABLE_LOGGING_DRIVERS=["json-file","awslogs"]')
     configfile.close()
     s3client.upload_file(
-        "/tmp/configtemp.config", AWS_BUCKET, "ecsconfigs/" + APP_NAME + "_ecs.config",
+        "/tmp/configtemp.config", AWS_BUCKET, f"ecsconfigs/{APP_NAME}_ecs.config",
     )
     os.remove("/tmp/configtemp.config")
-    return "s3://" + AWS_BUCKET + "/ecsconfigs/" + APP_NAME + "_ecs.config"
+    return f"s3://{AWS_BUCKET}/ecsconfigs/{APP_NAME}_ecs.config"
 
 
 def generateUserData(ecsConfigFile, dockerBaseSize):
     config_str = "#!/bin/bash \n"
     config_str += "sudo yum install -y aws-cli \n"
     config_str += "sudo yum install -y awslogs \n"
-    config_str += "aws s3 cp " + ecsConfigFile + " /etc/ecs/ecs.config"
+    config_str += f"aws s3 cp {ecsConfigFile} /etc/ecs/ecs.config"
 
     boothook_str = "#!/bin/bash \n"
     boothook_str += (
@@ -305,7 +305,7 @@ def export_logs(logs, loggroupId, starttime, bucketId):
         fromTime=starttime,
         to=time.time() * 1000,
         destination=bucketId,
-        destinationPrefix="exportedlogs/" + loggroupId,
+        destinationPrefix=f"exportedlogs/{loggroupId}",
     )
 
     logExportId = result["taskId"]
@@ -329,7 +329,7 @@ class JobQueue:
         self.sqs = boto3.resource("sqs")
         if name == None:
             self.queue = self.sqs.get_queue_by_name(
-                QueueName=(config_dict["APP_NAME"] + "Queue")
+                QueueName=(f'{config_dict["APP_NAME"]}Queue')
             )
         else:
             self.queue = self.sqs.get_queue_by_name(QueueName=name)
@@ -369,8 +369,8 @@ class JobQueue:
 
 def setup(config_dict, type):
     print(config_dict["APP_NAME"], "setup started")
-    ECS_TASK_NAME = config_dict["APP_NAME"] + "Task"
-    ECS_SERVICE_NAME = config_dict["APP_NAME"] + "Service"
+    ECS_TASK_NAME = f'{config_dict["APP_NAME"]}Task'
+    ECS_SERVICE_NAME = f'{config_dict["APP_NAME"]}Service'
     sqs = boto3.client("sqs")
     get_or_create_queue(sqs, config_dict)
     ecs = boto3.client("ecs")
@@ -476,9 +476,7 @@ def startCluster(fleetfile, njobs, config_dict):
 
     # Step 3: Make the monitor
     starttime = str(int(time.time() * 1000))
-    createMonitor = open(
-        "/tmp/" + config_dict["APP_NAME"] + "SpotFleetRequestId.json", "w"
-    )
+    createMonitor = open(f'/tmp/{config_dict["APP_NAME"]}SpotFleetRequestId.json', "w")
     createMonitor.write(
         '{"MONITOR_FLEET_ID" : "' + requestInfo["SpotFleetRequestId"] + '",\n'
     )
@@ -505,12 +503,12 @@ def startCluster(fleetfile, njobs, config_dict):
         logclient.put_retention_policy(
             logGroupName=config_dict["APP_NAME"], retentionInDays=60
         )
-    if config_dict["APP_NAME"] + "_perInstance" not in groupnames:
+    if f'{config_dict["APP_NAME"]}_perInstance' not in groupnames:
         logclient.create_log_group(
-            logGroupName=config_dict["APP_NAME"] + "_perInstance"
+            logGroupName=f'{config_dict["APP_NAME"]}_perInstance'
         )
         logclient.put_retention_policy(
-            logGroupName=config_dict["APP_NAME"] + "_perInstance", retentionInDays=60
+            logGroupName=f'{config_dict["APP_NAME"]}_perInstance', retentionInDays=60
         )
 
     # Step 5: update the ECS service to be ready to inject docker containers in EC2 instances
@@ -518,7 +516,7 @@ def startCluster(fleetfile, njobs, config_dict):
     ecs = boto3.client("ecs")
     ecs.update_service(
         cluster=ECS_CLUSTER,
-        service=config_dict["APP_NAME"] + "Service",
+        service=f'{config_dict["APP_NAME"]}Service',
         desiredCount=nmachines * int(config_dict["TASKS_PER_MACHINE"]),
     )
     print("Service updated.")
@@ -570,11 +568,13 @@ def startCluster(fleetfile, njobs, config_dict):
 # SERVICE 4: MONITOR JOB
 #################################
 
+
 def upload_monitor(bucket_name, prefix, config_dict):
     s3 = boto3.client("s3")
-    json_on_bucket_name = f"{prefix}monitors/stepfunctions/{config_dict['APP_NAME']}SpotFleetRequestId.json"
-    with open(f"/tmp/{config_dict['APP_NAME']}SpotFleetRequestId.json", "rb") as a:
+    json_on_bucket_name = f'{prefix}monitors/stepfunctions/{config_dict["APP_NAME"]}SpotFleetRequestId.json'
+    with open(f'/tmp/{config_dict["APP_NAME"]}SpotFleetRequestId.json', "rb") as a:
         s3.put_object(Body=a, Bucket=bucket_name, Key=json_on_bucket_name)
+
 
 def create_sqs_alarms(config_dict):
     cloudwatch = boto3.client("cloudwatch")
@@ -584,7 +584,7 @@ def create_sqs_alarms(config_dict):
     ]
     for metric in metricnames:
         response = cloudwatch.put_metric_alarm(
-            AlarmName=f"{metric}isZero_{config_dict['APP_NAME']}",
+            AlarmName=f'{metric}isZero_{config_dict["APP_NAME"]}',
             ActionsEnabled=True,
             OKActions=[],
             AlarmActions=[MONITOR_SNS],
@@ -593,7 +593,7 @@ def create_sqs_alarms(config_dict):
             Namespace="AWS/SQS",
             Statistic="Average",
             Dimensions=[
-                {"Name": "QueueName", "Value": f"{config_dict['APP_NAME']}Queue"}
+                {"Name": "QueueName", "Value": f'{config_dict["APP_NAME"]}Queue'}
             ],
             Period=300,
             EvaluationPeriods=1,
