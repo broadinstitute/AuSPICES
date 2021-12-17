@@ -9,7 +9,7 @@ import subprocess
 # @String plate
 
 localtemp = "temp"
-outfolder = "stitched"
+outfolder = "montaged"
 
 if not os.path.exists(localtemp):
     os.mkdir(localtemp)
@@ -27,7 +27,7 @@ cmd = [
     "*",
     "--include",
     f"{plate}*/*.png",
-    resultfolder,
+    result_folder,
     localtemp,
 ]
 print("Running", cmd)
@@ -60,7 +60,7 @@ im = IJ.getImage()
 IJ.saveAs("Tiff", os.path.join(outfolder, f"{plate}.tif"))
 IJ.run("Close All")
 
-cmd = ["aws", "s3", "sync", outfolder, localtemp]
+cmd = ["aws", "s3", "sync", outfolder, montage_folder]
 print("Running", cmd)
 subp = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 while True:
@@ -70,4 +70,4 @@ while True:
     if output:
         print(output.strip())
 
-print("all done")
+print("Done making montages.")
