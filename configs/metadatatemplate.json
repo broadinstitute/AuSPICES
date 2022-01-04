@@ -13,8 +13,11 @@
   "_commenton_channeldict":"Available maps: Standard_1BF, Standard_1BF_V, Standard_3BF",
   "_commenton_channeldict":"If your map doesn't already exist, enter it in as dictionary",
   "channeldict":"Standard_3BF",
+  "run_pe2loaddata": true,
   "run_illum": true,
   "run_QC": false,
   "run_segment": true,
+  "_commenton_platename_replacementdict":"Leave empty for default handling",
+  "platename_replacementdict":{},
   "notify_ARN": "arn:aws:sns:REGION:123456789123:Email_USER"
 }

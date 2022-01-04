@@ -1,4 +1,5 @@
 import boto3
+import re
 
 s3 = boto3.client("s3")
 
@@ -13,6 +14,7 @@ def lambda_handler(event, lambda_context):
         print("Images will not be z-projected.")
         prefix = f"projects/{event['project_name']}/{event['batch']}/images/"
     bucket = event["bucket"]
+    platename_replacementdict = event["platename_replacementdict"]
     platedict = s3.list_objects_v2(Bucket=bucket, Prefix=prefix, Delimiter="/")
 
     exclude_plates = event["exclude_plates"]
@@ -20,8 +22,23 @@ def lambda_handler(event, lambda_context):
 
     if len(platedict["CommonPrefixes"]) >= 1:
         triggerlist = []
+        auto_platedict = {}
         for item in platedict["CommonPrefixes"]:
             fullplatename = item["Prefix"].rsplit("/", 2)[1]
+
+            if not platename_replacementdict:
+                remote_xml_file = f"{prefix}{fullplatename}/Images/Index.idx.xml"
+                xml_head_object = s3.get_object(
+                    Bucket=bucket, Key=remote_xml_file, Range="bytes=0-3000"
+                )
+                xml_head = xml_head_object["Body"].read().decode("utf-8")
+                match = re.search("<Name>(.+?)</Name>", xml_head)
+                if match:
+                    plate_from_xml = match.group(1)
+                    auto_platedict[fullplatename] = plate_from_xml
+                else:
+                    print(f"Failed at finding replacement name for {fullplatename}")
+
             shortplatename = fullplatename.split("__")[0]
             if exclude_plates:
                 if shortplatename not in exclude_plates:
@@ -34,6 +51,16 @@ def lambda_handler(event, lambda_context):
             else:
                 minidict = {"plate": fullplatename}
                 triggerlist.append(minidict)
+
+        if platename_replacementdict:
+            print(
+                f"Platename replacement dictionary entered as {platename_replacementdict}"
+            )
+        else:
+            print(
+                f"Platename replacement dictionary will be auto-generated as {auto_platedict}"
+            )
+
         if len(triggerlist) >= 1:
             return triggerlist
         else:
