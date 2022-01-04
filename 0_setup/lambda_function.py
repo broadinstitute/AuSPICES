@@ -60,6 +60,11 @@ def lambda_handler(event, lambda_context):
             print(
                 f"Platename replacement dictionary will be auto-generated as {auto_platedict}"
             )
+            for key, value in auto_platedict.items():
+                if " " in value:
+                    print(
+                        f"WARNING: {key} will be named {value} and likely needs fixing using platename_replacementdict."
+                    )
 
         if len(triggerlist) >= 1:
             return triggerlist
