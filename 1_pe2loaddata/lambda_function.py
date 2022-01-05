@@ -9,6 +9,10 @@ s3 = boto3.client("s3")
 
 
 def lambda_handler(event, lambda_context):
+    if not event["run_pe2loaddata"]:
+        return
+
+    platename_replacementdict = event["platename_replacementdict"]
     fullplate = event["trigger"]["plate"]
     plate = fullplate.split("__")[0]
     project_name = event["project_name"]
@@ -101,6 +105,18 @@ def lambda_handler(event, lambda_context):
     )
     illum_output_on_bucket_name = f"projects/{project_name}/workspace/load_data_csv/{batch}/{plate}/load_data_with_illum.csv"
     zproj_output_on_bucket_name = f"projects/{project_name}/workspace/load_data_csv/{batch}/{plate}/load_data_unprojected.csv"
+
+    if platename_replacementdict:
+        print("Platename in CSVs changed according to platename_replacementdict")
+        csv_df = pd.read_csv(output)
+        csv_with_illum_df = pd.read_csv(illum_output)
+        for origname, newname in list(platename_replacementdict.items()):
+            samplepath = [x for x in csv_df.columns if "Path" in x][0]
+            if origname in csv_df[samplepath][1]:
+                csv_df["Metadata_Plate"] = newname
+                csv_df.to_csv(output, index=False)
+                csv_with_illum_df["Metadata_Plate"] = newname
+                csv_with_illum_df.to_csv(illum_output, index=False)
 
     if event["zproject"]:
         print("CSVs will include z-projection.")
