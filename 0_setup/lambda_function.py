@@ -26,18 +26,17 @@ def lambda_handler(event, lambda_context):
         for item in platedict["CommonPrefixes"]:
             fullplatename = item["Prefix"].rsplit("/", 2)[1]
 
-            if not platename_replacementdict:
-                remote_xml_file = f"{prefix}{fullplatename}/Images/Index.idx.xml"
-                xml_head_object = s3.get_object(
-                    Bucket=bucket, Key=remote_xml_file, Range="bytes=0-3000"
-                )
-                xml_head = xml_head_object["Body"].read().decode("utf-8")
-                match = re.search("<Name>(.+?)</Name>", xml_head)
-                if match:
-                    plate_from_xml = match.group(1)
-                    auto_platedict[fullplatename] = plate_from_xml
-                else:
-                    print(f"Failed at finding replacement name for {fullplatename}")
+            remote_xml_file = f"{prefix}{fullplatename}/Images/Index.idx.xml"
+            xml_head_object = s3.get_object(
+                Bucket=bucket, Key=remote_xml_file, Range="bytes=0-3000"
+            )
+            xml_head = xml_head_object["Body"].read().decode("utf-8")
+            match = re.search("<Name>(.+?)</Name>", xml_head)
+            if match:
+                plate_from_xml = match.group(1)
+                auto_platedict[fullplatename] = plate_from_xml
+            else:
+                print(f"Failed at finding replacement name for {fullplatename}")
 
             shortplatename = fullplatename.split("__")[0]
             if exclude_plates:
@@ -54,11 +53,24 @@ def lambda_handler(event, lambda_context):
 
         if platename_replacementdict:
             print(
+                f"Platename replacement dictionary auto-generates as {auto_platedict}"
+            )
+            print(
                 f"Platename replacement dictionary entered as {platename_replacementdict}"
             )
+            replaced_dictionary = auto_platedict.copy()
+            for origname, newname in list(platename_replacementdict.items()):
+                if origname in list(replaced_dictionary.keys()):
+                    replaced_dictionary[origname] = platename_replacementdict[origname]
+            print(f"Dictionary with replacements is {replaced_dictionary}")
+            for key, value in replaced_dictionary.items():
+                if " " in value:
+                    print(
+                        f"WARNING: {key} will be named {value} and likely needs fixing using platename_replacementdict."
+                    )
         else:
             print(
-                f"Platename replacement dictionary will be auto-generated as {auto_platedict}"
+                f"Platename replacement dictionary auto-generates as {auto_platedict}"
             )
             for key, value in auto_platedict.items():
                 if " " in value:
