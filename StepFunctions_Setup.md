@@ -15,7 +15,9 @@ Input => :white_check_mark: Transform array items
         "batch.$": "$.batch",
         "bucket.$": "$.bucket",
         "channeldict.$": "$.channeldict",
-        "zproject.$": "$.zproject"
+        "zproject.$": "$.zproject",
+        "run_pe2loaddata.$": "$.run_pe2loaddata",
+        "platename_replacementdict.$": "$.platename_replacementdict"
 }
 ```
 Output => :white_check_mark: ResultPath  

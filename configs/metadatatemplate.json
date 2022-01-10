@@ -11,13 +11,14 @@
   "SegmentPipelineName":"JUMP_segment_LoadData.cppipe",
   "AnalysisPipelineName":"JUMP_analysis_v4.cppipe",
   "_commenton_channeldict":"Available maps: Standard_1BF, Standard_1BF_V, Standard_3BF",
-  "_commenton_channeldict":"If your map doesn't already exist, enter it in as dictionary",
+  "_commenton_channeldict2":"If your map doesn't already exist, enter it in as dictionary",
   "channeldict":"Standard_3BF",
   "run_pe2loaddata": true,
   "run_illum": true,
   "run_QC": false,
   "run_segment": true,
   "_commenton_platename_replacementdict":"Leave empty for default handling",
+  "_commenton_platename_replacementdict2":"To correct Metadata_Plate in csvs, {'Full_Platename__In_Path':'Platename'}",
   "platename_replacementdict":{},
   "notify_ARN": "arn:aws:sns:REGION:123456789123:Email_USER"
 }
