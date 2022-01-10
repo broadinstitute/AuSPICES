@@ -87,7 +87,7 @@ Timeout = 15 min
 Retry attempts = 0
 #### Environment variables:
 Key = MY_AWS_ACCESS_KEY_ID, Value = {your_access_key}  
-Key = MY_AWS_SECRET_ACCESS_KEY_ID, Value = {your_secret_access_key}
+Key = MY_AWS_SECRET_ACCESS_KEY, Value = {your_secret_access_key}
 #### Layers:
 Add necessary layers (listed below).
 

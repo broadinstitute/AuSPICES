@@ -110,15 +110,7 @@ def generate_fiji_task_definition(config_dict):
         },
         {"name": "AWS_BUCKET", "value": AWS_BUCKET},
         {"name": "LOG_GROUP_NAME", "value": config_dict["APP_NAME"]},
-        {
-            "name": "EXPECTED_NUMBER_FILES",
-            "value": str(config_dict["EXPECTED_NUMBER_FILES"]),
-        },
         {"name": "ECS_CLUSTER", "value": ECS_CLUSTER},
-        {
-            "name": "MIN_FILE_SIZE_BYTES",
-            "value": str(config_dict["MIN_FILE_SIZE_BYTES"]),
-        },
         {"name": "SCRIPT_DOWNLOAD_URL", "value": config_dict["SCRIPT_DOWNLOAD_URL"]},
     ]
     return task_definition
