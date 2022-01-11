@@ -101,10 +101,13 @@ def create_batch_jobs_6(bucket, project_name, batch, platelist):
     montagequeue = JobQueue(f"{project_name}_MontageQueue")
     for tomontage in platelist:
         montageMessage = {
-            "plate": tomontage,
-            "bucket": bucket,
-            "project": project_name,
-            "batch": batch,
+            "Metadata": {"plate": tomontage},
+            "shared_metadata": {
+                "bucket": bucket,
+                "project": project_name,
+                "batch": batch,
+            },
+            "output_file_location": f"projects/{project_name}/workspace/segment/{batch}/results",
         }
         montagequeue.scheduleBatch(montageMessage)
     print("Montage job submitted. Check your queue")

@@ -41,6 +41,8 @@ def lambda_handler(event, context):
         if include_plates:
             platelist = include_plates
 
+        config_dict["EXPECTED_NUMBER_FILES"] = 0
+
         run_DCP.run_setup(bucket, prefix, batch, config_dict, type="FIJI")
 
         # make the jobs

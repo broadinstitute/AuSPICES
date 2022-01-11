@@ -59,7 +59,7 @@ outname = plate + '.tif'
 IJ.saveAs("Tiff", os.path.join(outfolder, outname))
 IJ.run("Close All")
 
-cmd = ["aws", "s3", "sync", outfolder, os.path.join(s3_start_path, montages)]
+cmd = ["aws", "s3", "sync", outfolder, os.path.join(s3_start_path, "montages")]
 print("Running", cmd)
 subp = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 while True:
