@@ -1,12 +1,11 @@
+#@String bucket
+#@String project
+#@String batch
+#@String plate
+
 from ij import IJ
 import os
 import subprocess
-
-
-# @String bucket
-# @String project
-# @String batch
-# @String plate
 
 localtemp = "temp"
 outfolder = "montaged"
@@ -16,8 +15,7 @@ if not os.path.exists(localtemp):
 if not os.path.exists(outfolder):
     os.mkdir(outfolder)
 
-result_folder = f"s3://{str(bucket)}/projects/{str(project)}/workspace/segment/{str(batch)}/results/"
-montage_folder = f"s3://{str(bucket)}/projects/{str(project)}/workspace/segment/{str(batch)}/montage/"
+s3_start_path = "s3://" + bucket + "/projects/" + project + "/workspace/segment/" + batch
 
 cmd = [
     "aws",
@@ -26,8 +24,8 @@ cmd = [
     "--exclude",
     "*",
     "--include",
-    f"{plate}*/*.png",
-    result_folder,
+    (plate + "*/*.png"),
+    os.path.join(s3_start_path, "results"),
     localtemp,
 ]
 print("Running", cmd)
@@ -57,10 +55,11 @@ sampleimage = os.listdir(thisfolder)[0]
 IJ.run("Image Sequence...", "open=" + os.path.join(thisfolder, sampleimage) + " sort")
 IJ.run("Make Montage...", "columns=24 rows=16 scale=1")
 im = IJ.getImage()
-IJ.saveAs("Tiff", os.path.join(outfolder, f"{plate}.tif"))
+outname = plate + '.tif'
+IJ.saveAs("Tiff", os.path.join(outfolder, outname))
 IJ.run("Close All")
 
-cmd = ["aws", "s3", "sync", outfolder, montage_folder]
+cmd = ["aws", "s3", "sync", outfolder, os.path.join(s3_start_path, montages)]
 print("Running", cmd)
 subp = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 while True:
