@@ -25,6 +25,14 @@ def lambda_handler(event, lambda_context):
         auto_platedict = {}
         for item in platedict["CommonPrefixes"]:
             fullplatename = item["Prefix"].rsplit("/", 2)[1]
+            shortplatename = fullplatename.split("__")[0]
+
+            if exclude_plates:
+                if shortplatename in exclude_plates:
+                    continue
+            if include_plates:
+                if shortplatename not in include_plates:
+                    continue
 
             remote_xml_file = f"{prefix}{fullplatename}/Images/Index.idx.xml"
             xml_head_object = s3.get_object(
@@ -38,7 +46,6 @@ def lambda_handler(event, lambda_context):
             else:
                 print(f"Failed at finding replacement name for {fullplatename}")
 
-            shortplatename = fullplatename.split("__")[0]
             if exclude_plates:
                 if shortplatename not in exclude_plates:
                     minidict = {"plate": fullplatename}
