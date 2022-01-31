@@ -14,6 +14,10 @@ sns_arn = 'arn:aws:sns:region:123456789123:Kill_Nameless_Machines_Email_Notifica
 
 def check_if_named_or_spot(instance_id):
     instance = ec2.describe_instances(InstanceIds=[instance_id])
+    if instance["Reservations"][0]["Instances"][0]["State"]["Name"] == 'terminated':
+        print (f"{instance_id} already killed")
+        return True, False
+        
     if "Tags" in instance["Reservations"][0]["Instances"][0]:
         tagkeys = []
         for tag in instance["Reservations"][0]["Instances"][0]["Tags"]:
