@@ -7,9 +7,10 @@ sqs = boto3.client("sqs")
 sns = boto3.client("sns")
 
 # Set for each implementation of function
-queue_url = 'https://sqs.region.amazonaws.com/123456789123/Killed_Machines_List'
-bucket = 'bucket-name'
-sns_arn = 'arn:aws:sns:region:123456789123:Kill_Nameless_Machines_Email_Notification'
+queue_url = "https://sqs.region.amazonaws.com/123456789123/Killed_Machines_List"
+bucket = "bucket-name"
+sns_arn = "arn:aws:sns:region:123456789123:Kill_Nameless_Machines_Email_Notification"
+
 
 def lambda_handler(event, lambda_context):
     # Must iterate to get all messages in queue
@@ -59,10 +60,12 @@ def lambda_handler(event, lambda_context):
                 )
 
                 try:
-                    msg = f'Spot fleet request {spot_request_id} in {bucket} was cancelled by Kill_Nameless_Machines.'
+                    msg = f"Spot fleet request {spot_request_id} in {bucket} was cancelled by Kill_Nameless_Machines."
                     sns.publish(TopicArn=sns_arn, Message=msg)
                 except:
-                    print ('Failed at email notification of cancelled spot fleet request')
+                    print(
+                        "Failed at email notification of cancelled spot fleet request"
+                    )
 
     print(f"{instance_id_list} were nameless for too long after launch. Terminating.")
     for instance_id in instance_id_list:
@@ -74,7 +77,7 @@ def lambda_handler(event, lambda_context):
 
     if len(instance_id_list) > 0:
         try:
-            msg = f'{len(instance_id_list)} instances terminated in {bucket} by Kill_Nameless_Machines'
+            msg = f"{len(instance_id_list)} instances terminated in {bucket} by Kill_Nameless_Machines"
             sns.publish(TopicArn=sns_arn, Message=msg)
         except:
-            print ('Failed at email notification of killed instance')
+            print("Failed at email notification of killed instance")

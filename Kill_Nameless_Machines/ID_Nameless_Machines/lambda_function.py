@@ -7,24 +7,24 @@ sqs = boto3.client("sqs")
 sns = boto3.client("sns")
 
 # Set for each implementation of function
-queue_url = 'https://sqs.region.amazonaws.com/123456789123/Killed_Machines_List'
-bucket = 'bucket-name'
-sns_arn = 'arn:aws:sns:region:123456789123:Kill_Nameless_Machines_Email_Notification'
+queue_url = "https://sqs.region.amazonaws.com/123456789123/Killed_Machines_List"
+bucket = "bucket-name"
+sns_arn = "arn:aws:sns:region:123456789123:Kill_Nameless_Machines_Email_Notification"
 
 
 def check_if_named_or_spot(instance_id):
     instance = ec2.describe_instances(InstanceIds=[instance_id])
-    if instance["Reservations"][0]["Instances"][0]["State"]["Name"] == 'terminated':
-        print (f"{instance_id} already killed")
+    if instance["Reservations"][0]["Instances"][0]["State"]["Name"] == "terminated":
+        print(f"{instance_id} already killed")
         return True, False
-        
+
     if "Tags" in instance["Reservations"][0]["Instances"][0]:
         tagkeys = []
         for tag in instance["Reservations"][0]["Instances"][0]["Tags"]:
-            tagkeys.append(tag['Key'])
-            if tag['Key'] == 'Name':
+            tagkeys.append(tag["Key"])
+            if tag["Key"] == "Name":
                 instance_name = tag["Value"]
-            if tag['Key'] == 'aws:ec2spot:fleet-request-id':
+            if tag["Key"] == "aws:ec2spot:fleet-request-id":
                 spot_request_id = tag["Value"]
 
         if "Name" in tagkeys:
@@ -34,7 +34,7 @@ def check_if_named_or_spot(instance_id):
             print(f"{instance_id} does not have a name.")
             named = False
 
-        if 'aws:ec2spot:fleet-request-id' in tagkeys:
+        if "aws:ec2spot:fleet-request-id" in tagkeys:
             print(f"{instance_id} is in spot fleet {spot_request_id}.")
         else:
             spot_request_id = False
@@ -78,7 +78,7 @@ def lambda_handler(event, lambda_context):
             ec2.terminate_instances(InstanceIds=[instance_id])
 
             try:
-                msg = f'On-Demand {instance_id} in {bucket} terminated by Kill_Nameless_Machines'
+                msg = f"On-Demand {instance_id} in {bucket} terminated by Kill_Nameless_Machines"
                 sns.publish(TopicArn=sns_arn, Message=msg)
             except:
-                print ('Failed at email notification of killed instance')
+                print("Failed at email notification of killed instance")
