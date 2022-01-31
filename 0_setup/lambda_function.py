@@ -1,5 +1,6 @@
 import boto3
 import re
+import json
 
 s3 = boto3.client("s3")
 
@@ -60,16 +61,16 @@ def lambda_handler(event, lambda_context):
 
         if platename_replacementdict:
             print(
-                f"Platename replacement dictionary auto-generates as {auto_platedict}"
+                f"Platename replacement dictionary auto-generates as {json.dumps(auto_platedict)}"
             )
             print(
-                f"Platename replacement dictionary entered as {platename_replacementdict}"
+                f"Platename replacement dictionary entered as {json.dumps(platename_replacementdict)}"
             )
             replaced_dictionary = auto_platedict.copy()
             for origname, newname in list(platename_replacementdict.items()):
                 if origname in list(replaced_dictionary.keys()):
                     replaced_dictionary[origname] = platename_replacementdict[origname]
-            print(f"Dictionary with replacements is {replaced_dictionary}")
+            print(f"Dictionary with replacements is {json.dumps(replaced_dictionary)}")
             for key, value in replaced_dictionary.items():
                 if " " in value:
                     print(
@@ -77,7 +78,7 @@ def lambda_handler(event, lambda_context):
                     )
         else:
             print(
-                f"Platename replacement dictionary auto-generates as {auto_platedict}"
+                f"Platename replacement dictionary auto-generates as {json.dumps(auto_platedict)}"
             )
             for key, value in auto_platedict.items():
                 if " " in value:
