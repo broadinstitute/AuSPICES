@@ -118,6 +118,7 @@ def lambda_handler(event, lambda_context):
                 csv_df.to_csv(output, index=False)
                 csv_with_illum_df["Metadata_Plate"] = newname
                 csv_with_illum_df.to_csv(illum_output, index=False)
+                plate = newname
 
     if event["zproject"]:
         print("CSVs will include z-projection.")
@@ -128,6 +129,7 @@ def lambda_handler(event, lambda_context):
         final_z = max(csv_df["Metadata_PlaneID"].unique())
         csv_df = csv_df.loc[csv_df["Metadata_PlaneID"] == final_z]
         csv_df = csv_df.replace(regex=r"images_unprojected", value="images")
+        csv_df = csv_df.replace(regex=fullplate, value=plate)
 
         csv_with_illum_df = pd.read_csv(illum_output)
         csv_with_illum_df = csv_with_illum_df.loc[
@@ -135,6 +137,9 @@ def lambda_handler(event, lambda_context):
         ]
         csv_with_illum_df = csv_with_illum_df.replace(
             regex=r"images_unprojected", value="images"
+        )
+        csv_with_illum_df = csv_with_illum_df.replace(
+            regex=fullplate, value=plate
         )
 
         csv_df.to_csv(output, index=False)
