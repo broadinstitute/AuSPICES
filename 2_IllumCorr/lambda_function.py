@@ -6,6 +6,7 @@ sys.path.append("/opt/jump-cellpainting-lambda")
 import run_DCP
 import create_batch_jobs
 import channel_dicts
+import make_pipelines
 
 s3 = boto3.client("s3")
 
@@ -66,7 +67,7 @@ def lambda_handler(event, lambda_context):
             pipeline_name = "2_IllumCorr.json"
             pipeline_on_bucket_name = f"{prefix}pipelines/{batch}/{pipeline_name}"
             make_pipelines.make_2_pipeline(bucket, channelmap)
-            with open(f"tmp/{pipeline_name}", "rb") as a:
+            with open(f"/tmp/{pipeline_name}", "rb") as a:
                 s3.put_object(Body=a, Bucket=bucket, Key=pipeline_on_bucket_name)
 
         # Run DCP

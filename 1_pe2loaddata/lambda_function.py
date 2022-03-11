@@ -4,6 +4,7 @@ import shutil
 from pe2loaddata.__main__ import headless as pe2loaddata
 import yaml
 import pandas as pd
+import sys
 
 sys.path.append("/opt/jump-cellpainting-lambda")
 
