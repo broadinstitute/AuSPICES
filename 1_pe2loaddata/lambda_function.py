@@ -5,12 +5,16 @@ from pe2loaddata.__main__ import headless as pe2loaddata
 import yaml
 import pandas as pd
 
+sys.path.append("/opt/jump-cellpainting-lambda")
+
+import channel_dicts
+
 s3 = boto3.client("s3")
 
 
 def lambda_handler(event, lambda_context):
     if not event["run_pe2loaddata"]:
-        print('Skipping pe2loaddata as set in input.')
+        print("Skipping pe2loaddata as set in input.")
         return
 
     platename_replacementdict = event["platename_replacementdict"]
@@ -21,44 +25,16 @@ def lambda_handler(event, lambda_context):
     bucket = event["bucket"]
     channeldict = event["channeldict"]
 
-    # Create channel map
-    if channeldict == "Standard_1BF":
-        channelmap = {
-            "HOECHST 33342": "OrigDNA",
-            "Alexa 568": "OrigAGP",
-            "Alexa 647": "OrigMito",
-            "Alexa 488": "OrigER",
-            "488 long": "OrigRNA",
-            "Brightfield": "OrigBrightfield",
-        }
-    elif channeldict == "Standard_1BF_V":
-        channelmap = {
-            "HOECHST 33342": "OrigDNA",
-            "Alexa 568": "OrigAGP",
-            "Alexa 647": "OrigMito",
-            "Alexa 488": "OrigER",
-            "488 long": "OrigRNA",
-            "Brightfield CP": "OrigBrightfield",
-        }
-    elif channeldict == "Standard_3BF":
-        channelmap = {
-            "HOECHST 33342": "OrigDNA",
-            "Alexa 568": "OrigAGP",
-            "Alexa 647": "OrigMito",
-            "Alexa 488": "OrigER",
-            "488 long": "OrigRNA",
-            "Brightfield": "OrigBrightfield",
-            "Brightfield H": "OrigBrightfield_H",
-            "Brightfield L": "OrigBrightfield_L",
-        }
+    # Import channel_dicts
+    if type(channeldict) is dict:
+        channelmap = channeldict
     else:
-        if type(channeldict) is not dict:
+        channelmap = channel_dicts.find_map(channeldict)
+        if not channelmap:
             print(
-                "In metadata: enter string for existing map into channeldict enter new map as dictionary."
+                "channeldict in metadata not valid. Enter string for existing map or enter new map as dictionary."
             )
             return
-        else:
-            channelmap = channeldict
 
     # Load and edit config file with channel map
     shutil.copy("./config.yml", "/tmp/config.yml")
@@ -138,9 +114,7 @@ def lambda_handler(event, lambda_context):
         csv_with_illum_df = csv_with_illum_df.replace(
             regex=r"images_unprojected", value="images"
         )
-        csv_with_illum_df = csv_with_illum_df.replace(
-            regex=fullplate, value=plate
-        )
+        csv_with_illum_df = csv_with_illum_df.replace(regex=fullplate, value=plate)
 
         csv_df.to_csv(output, index=False)
         with open(output, "rb") as a:
