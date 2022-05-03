@@ -111,21 +111,21 @@ If it does not:
 
 ## Rule 1:
 
-### Name and description:
+### Rule detail:
 **Name**: launch_ec2_instance
+**Event bus**: default
+Enable the rule on the selected event bus.
+**Rule type**: Rule with an event pattern
 
-### Define pattern:
-Event pattern  
-**Event matching pattern**: Pre-defined pattern by service  
-**Service provider**: AWS  
-**Service name**: EC2  
+### Event source:
+AWS events or EventBridge partner events
+
+### Event pattern:
+**Event source**: AWS services
+**AWS Service**: EC2  
 **Event type**: EC2 Instance State-change Notification  
 **Specific state(s)**: running  
 Any instance  
-
-### Select event bus:
-AWS default event bus  
-Enable the rule on the selected event bus.
 
 ### Select targets:
 **Target**: Lambda function  
@@ -133,17 +133,20 @@ Enable the rule on the selected event bus.
 
 ## Rule 2:
 
-### Name and description:
+### Rule detail:
 **Name**: every_10_minutes
+**Event bus**: default
+Enable the rule on the selected event bus.
+**Rule type**: Schedule
 
-### Define pattern:
-Schedule  
-**Fixed rate every**: 10 minutes
+### Schedule pattern:
+**A regular rate**:  10 minutes
 
 ### Select event bus:
 AWS default event bus  
 Enable the rule on the selected event bus.
 
 ### Select targets:
-**Target**: Lambda function  
+**Target type**: AWS service
+**Select a target**: Lambda function
 **Function**: Kill_Nameless_Fleets
