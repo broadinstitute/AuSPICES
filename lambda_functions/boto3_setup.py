@@ -598,3 +598,135 @@ def create_sqs_alarms(config_dict):
             ComparisonOperator="LessThanOrEqualToThreshold",
             TreatMissingData="missing",
         )
+
+
+def create_dashboard(config_dict):
+    f = open(f'/tmp/{config_dict["APP_NAME"]}SpotFleetRequestId.json')
+    spot_fleet_request = json.load(f)
+
+    cloudwatch = boto3.client("cloudwatch")
+    DashboardMessage = {
+        "widgets": [
+            {
+                "height": 6,
+                "width": 6,
+                "y": 0,
+                "x": 18,
+                "type": "metric",
+                "properties": {
+                    "metrics": [
+                        [ "AWS/SQS", "NumberOfMessagesReceived", "QueueName", f'{config_dict["APP_NAME"]}Queue' ],
+                        [ ".", "NumberOfMessagesDeleted", ".", "." ],
+                    ],
+                    "view": "timeSeries",
+                    "stacked": false,
+                    "region": AWS_REGION,
+                    "period": 300,
+                    "stat": "Average"
+                }
+            },
+            {
+                "height": 6,
+                "width": 6,
+                "y": 0,
+                "x": 6,
+                "type": "metric",
+                "properties": {
+                    "view": "timeSeries",
+                    "stacked": false,
+                    "metrics": [
+                        [ "AWS/ECS", "MemoryUtilization", "ClusterName", ECS_CLUSTER ]
+                    ],
+                    "region": AWS_REGION,
+                    "period": 300,
+                    "yAxis": {
+                        "left": {
+                            "min": 0
+                        }
+                    }
+                }
+            },
+            {
+                "height": 6,
+                "width": 6,
+                "y": 0,
+                "x": 12,
+                "type": "metric",
+                "properties": {
+                    "metrics": [
+                        [ "AWS/SQS", "ApproximateNumberOfMessagesVisible", "QueueName", "2021_04_26_Production_AnalysisQueue" ],
+                        [ ".", "ApproximateNumberOfMessagesNotVisible", ".", "."],
+                    ],
+                    "view": "timeSeries",
+                    "stacked": true,
+                    "region": AWS_REGION,
+                    "period": 300,
+                    "stat": "Average"
+                }
+            },
+            {
+                "height": 6,
+                "width": 12,
+                "y": 6,
+                "x": 12,
+                "type": "log",
+                "properties": {
+                    "query": f"SOURCE {config_dict["APP_NAME"]} | fields @message| filter @message like 'cellprofiler -c'| stats count_distinct(@message)\n",
+                    "region": AWS_REGION,
+                    "stacked": false,
+                    "title": "Distinct Logs with \"cellprofiler -c\"",
+                    "view": "table"
+                }
+            },
+            {
+                "height": 6,
+                "width": 12,
+                "y": 6,
+                "x": 0,
+                "type": "log",
+                "properties": {
+                    "query": f"SOURCE {config_dict["APP_NAME"]} | fields @message| filter @message like 'cellprofiler -c'| stats count(@message)",
+                    "region": AWS_REGION,
+                    "stacked": false,
+                    "title": "All Logs \"cellprofiler -c\"",
+                    "view": "table"
+                }
+            },
+            {
+                "height": 6,
+                "width": 24,
+                "y": 12,
+                "x": 0,
+                "type": "log",
+                "properties": {
+                    "query": f"SOURCE {config_dict["APP_NAME"]} | fields @message\n\n   | filter @message like \"Error\"\n\n   | display @message\n",
+                    "region": AWS_REGION,
+                    "stacked": false,
+                    "title": "Errors",
+                    "view": "table"
+                }
+            },
+            {
+                "height": 6,
+                "width": 6,
+                "y": 0,
+                "x": 0,
+                "type": "metric",
+                "properties": {
+                    "metrics": [
+                        [ "AWS/EC2Spot", "FulfilledCapacity", "FleetRequestId", spot_fleet_request['MONITOR_FLEET_ID']],
+                        [ ".", "TargetCapacity", ".", "."],
+                    ],
+                    "view": "timeSeries",
+                    "stacked": false,
+                    "region": AWS_REGION,
+                    "period": 300,
+                    "stat": "Average"
+                }
+            }
+        ]
+    }
+    response = cloudwatch.put_dashboard(DashboardName=config_dict["APP_NAME"], DashboardBody=DashboardMessage)
+    if response['DashboardValidationMessages']:
+        print ('Likely error in Dashboard creation')
+        print (response['DashboardValidationMessages'])

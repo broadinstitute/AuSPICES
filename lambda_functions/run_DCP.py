@@ -56,3 +56,4 @@ def setup_monitor(bucket, prefix, config_dict):
 
     boto3_setup.create_sqs_alarms(config_dict)
     boto3_setup.upload_monitor(bucket, prefix, config_dict)
+    boto3_setup.create_dashboard(config_dict)
