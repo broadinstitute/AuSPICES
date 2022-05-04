@@ -124,3 +124,53 @@ def make_3_pipeline(channeldict):
     )
 
     pipeline["modules"][2]["settings"] = CorrectIlluminationApply
+
+
+def make_5_pipeline(channeldict, Nuclei_channel, Cells_channel):
+    with open(f"/var/task/pipeline.json") as f:
+        pipeline = json.load(f)
+    f.close()
+
+    CorrectIllumApply = []
+    for channel in channeldict.values():
+        setting = {
+            "name": "cellprofiler_core.setting.subscriber.image_subscriber._image_subscriber.ImageSubscriber",
+            "text": "Select the input image",
+            "value": channel,
+        }
+        CorrectIllumApply.append(setting)
+        setting = {
+            "name": "cellprofiler_core.setting.text.alphanumeric.name.image_name._image_name.ImageName",
+            "text": "Name the output image",
+            "value": channel.replace("Orig", ""),
+        }
+        CorrectIllumApply.append(setting)
+        setting = {
+            "name": "cellprofiler_core.setting.subscriber.image_subscriber._image_subscriber.ImageSubscriber",
+            "text": "Select the illumination function",
+            "value": channel.replace("Orig", "Illum"),
+        }
+        CorrectIllumApply.append(setting)
+        setting = {
+            "name": "cellprofiler_core.setting.choice._choice.Choice",
+            "text": "Select how the illumination function is applied",
+            "value": "Divide",
+        }
+        CorrectIllumApply.append(setting)
+    pipeline["modules"][2]["settings"] = CorrectIllumApply
+
+    # CorrectIlluminationCalculate
+    pipeline["modules"][3]["settings"][0]["value"] = Nuclei_channel.replace("Orig", "")
+    # CorrectIlluminationApply
+    pipeline["modules"][4]["settings"][0]["value"] = Nuclei_channel.replace("Orig", "")
+    # IdentifySecondaryObjects
+    pipeline["modules"][6]["settings"][3]["value"] = Cells_channel.replace("Orig", "")
+    # Rescale Intensity
+    pipeline["modules"][8]["settings"][0]["value"] = Nuclei_channel.replace("Orig", "")
+    # Rescale Intensity
+    pipeline["modules"][9]["settings"][0]["value"] = Cells_channel.replace("Orig", "")
+
+    with open(f"/tmp/5_RunSegment.json", "w") as f:
+        json.dump(pipeline, f, indent=4)
+
+    return
