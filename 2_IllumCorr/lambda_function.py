@@ -66,7 +66,7 @@ def lambda_handler(event, lambda_context):
         if not pipeline_name:
             pipeline_name = "2_IllumCorr.json"
             pipeline_on_bucket_name = f"{prefix}pipelines/{batch}/{pipeline_name}"
-            make_pipelines.make_2_pipeline(bucket, channelmap)
+            make_pipelines.make_2_pipeline(channelmap)
             with open(f"/tmp/{pipeline_name}", "rb") as a:
                 s3.put_object(Body=a, Bucket=bucket, Key=pipeline_on_bucket_name)
 

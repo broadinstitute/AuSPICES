@@ -2,7 +2,7 @@ import json
 import copy
 
 
-def make_2_pipeline(bucket, channeldict):
+def make_2_pipeline(channeldict):
     with open(f"/var/task/pipeline_pieces.json") as f:
         pipeline_pieces = json.load(f)
     f.close()
@@ -70,3 +70,57 @@ def make_2_pipeline(bucket, channeldict):
         json.dump(cppipe, f, indent=4)
 
     return
+
+
+def make_3_pipeline(channeldict):
+    with open(f"/var/task/pipeline.json") as f:
+        pipeline = json.load(f)
+    f.close()
+
+    # CorrectIlluminationApply
+    CorrectIlluminationApply = []
+    for channel in channeldict.values():
+        CorrectIlluminationApply.append(
+            {
+                "name": "cellprofiler_core.setting.subscriber.image_subscriber._image_subscriber.ImageSubscriber",
+                "text": "Select the input image",
+                "value": f"{channel}",
+            }
+        )
+        CorrectIlluminationApply.append(
+            {
+                "name": "cellprofiler_core.setting.text.alphanumeric.name.image_name._image_name.ImageName",
+                "text": "Name the output image",
+                "value": f"{channel.replace('Orig', '')}",
+            }
+        )
+        CorrectIlluminationApply.append(
+            {
+                "name": "cellprofiler_core.setting.subscriber.image_subscriber._image_subscriber.ImageSubscriber",
+                "text": "Select the illumination function",
+                "value": f"Illum{channel.replace('Orig', '')}",
+            }
+        )
+        CorrectIlluminationApply.append(
+            {
+                "name": "cellprofiler_core.setting.choice._choice.Choice",
+                "text": "Select how the illumination function is applied",
+                "value": "Divide",
+            }
+        )
+    CorrectIlluminationApply.append(
+        {
+            "name": "cellprofiler_core.setting._binary.Binary",
+            "text": "Set output image values less than 0 equal to 0?",
+            "value": "Yes",
+        }
+    )
+    CorrectIlluminationApply.append(
+        {
+            "name": "cellprofiler_core.setting._binary.Binary",
+            "text": "Set output image values greater than 1 equal to 1?",
+            "value": "Yes",
+        }
+    )
+
+    pipeline["modules"][2]["settings"] = CorrectIlluminationApply
