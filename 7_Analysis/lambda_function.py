@@ -43,6 +43,14 @@ def lambda_handler(event, context):
     if include_plates:
         platelist = include_plates
 
+    # Pipeline handling
+    if not pipeline_name:
+        pipeline_name = "7_Analysis.json"
+        pipeline_on_bucket_name = f"{prefix}pipelines/{batch}/{pipeline_name}"
+        make_pipelines.make_7_pipeline(channelmap, Nuclei_channel, Cells_channel)
+        with open(f"/tmp/7_Analysis.json", "rb") as a:
+            s3.put_object(Body=a, Bucket=bucket, Key=pipeline_on_bucket_name)
+
     # Run DCP
     run_DCP.run_setup(bucket, prefix, batch, config_dict)
 

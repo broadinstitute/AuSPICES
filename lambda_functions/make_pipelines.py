@@ -142,11 +142,20 @@ def make_5_pipeline(channeldict, Nuclei_channel, Cells_channel):
     with open(f"/tmp/5_RunSegment.json", "w") as f:
         json.dump(pipeline, f, indent=4)
 
+def make_7_pipeline(channeldict, Nuclei_channel, Cells_channel):
+    with open(f"/var/task/pipeline.json") as f:
+        pipeline = json.load(f)
+    f.close()
+    with open(f"/var/task/pipeline_end.json") as g:
+        pipeline = json.load(g)
+    g.close()
 
-# CorrectIlluminationApply
-"""
+    orig_channel_list = list(channeldict.values())
+    corrected_channel_list = [x.replace('Orig','') for x in channeldict.values()]
+
+    # CorrectIlluminationApply
     CorrectIlluminationApply = []
-    for channel in channeldict.values():
+    for channel in orig_channel_list:
         CorrectIlluminationApply.append(
             {
                 "name": "cellprofiler_core.setting.subscriber.image_subscriber._image_subscriber.ImageSubscriber",
@@ -189,6 +198,48 @@ def make_5_pipeline(channeldict, Nuclei_channel, Cells_channel):
             "value": "Yes",
         }
     )
-
     pipeline["modules"][2]["settings"] = CorrectIlluminationApply
-"""
+
+    # CorrectIlluminationCalculate
+    pipeline["modules"][2]["settings"][0]["value"] = Nuclei_channel.replace("Orig", "")
+    # CorrectIlluminationApply
+    pipeline["modules"][3]["settings"][0]["value"] = Nuclei_channel.replace("Orig", "")
+    # IdentifySecondaryObjects
+    pipeline["modules"][5]["settings"][3]["value"] = Cells_channel.replace("Orig", "")
+    # MeasureColocalization
+    pipeline["modules"][8]["settings"][0]["value"] = corrected_channel_list
+    # MeasureGranularity
+    pipeline["modules"][9]["settings"][0]["value"] = corrected_channel_list
+    # MeasureObjectIntensity
+    pipeline["modules"][10]["settings"][0]["value"] = corrected_channel_list
+    # MeasureObjectIntensityDistribution
+    pipeline["modules"][14]["settings"][0]["value"] = corrected_channel_list
+    # MeasureTexture
+    pipeline["modules"][16]["settings"][0]["value"] = corrected_channel_list
+    # Special mito features
+    if not any('mito' in x.lower() for x in channeldict.values()):
+        pipeline["modules"][17]["attributes"]["enabled"] = False
+        pipeline["modules"][18]["attributes"]["enabled"] = False
+        pipeline["modules"][19]["attributes"]["enabled"] = False
+        pipeline["modules"][20]["attributes"]["enabled"] = False
+        pipeline["modules"][21]["attributes"]["enabled"] = False
+    # MaskImage
+    MaskImageModule = pipeline["modules"][26]
+    for channel in corrected_channel_list:
+        counter = 0
+        MaskImageModule["attributes"]["module_num"] = 27 + counter
+        MaskImageModule["settings"][0]["value"] = channel
+        MaskImageModule["settings"][1]["value"] = f"{channel}__BackgroundOnly"
+        pipeline["modules"][26 + counter] = MaskImageModule
+        counter += 1
+    # MeasureImageIntensity
+    pipeline_end[0]["attributes"]["module_num"] = 27 + counter
+    pipeline_end[0]["settings"][0] = corrected_channel_list + [f"{x}__BackgroundOnly" for x in corrected_channel_list]
+    pipeline["modules"][26 + counter] = pipeline_end[0]
+    # ExportToSpreadsheet
+    pipeline_end[1]["attributes"]["module_num"] = 28 + counter
+    # HOW TF DO I HANDLE SELECTION??
+    pipeline["modules"][27 + counter] = pipeline_end[1]
+
+    with open(f"/tmp/7_Analysis.json", "w") as f:
+        json.dump(pipeline, f, indent=4)
