@@ -68,7 +68,7 @@ def lambda_handler(event, context):
         if not pipeline_name:
             pipeline_name = "3_RunQC.json"
             pipeline_on_bucket_name = f"{prefix}pipelines/{batch}/{pipeline_name}"
-            make_pipelines.make_3_pipeline(bucket, channelmap)
+            make_pipelines.make_3_pipeline(channelmap, Nuclei_channel, Cells_channel)
             with open(f"/tmp/{pipeline_name}", "rb") as a:
                 s3.put_object(Body=a, Bucket=bucket, Key=pipeline_on_bucket_name)
 

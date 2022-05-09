@@ -72,58 +72,27 @@ def make_2_pipeline(channeldict):
     return
 
 
-def make_3_pipeline(channeldict):
+def make_3_pipeline(channeldict, Nuclei_channel, Cells_channel):
     with open(f"/var/task/pipeline.json") as f:
         pipeline = json.load(f)
     f.close()
-
+    # MeasureImageQuality
+    pipeline["modules"][2]["settings"][6]["value"] = Nuclei_channel
+    pipeline["modules"][2]["settings"][19]["value"] = Cells_channel
+    # CorrectIlluminationCalculate
+    pipeline["modules"][3]["settings"][0]["value"] = Nuclei_channel.replace("Orig", "")
     # CorrectIlluminationApply
-    CorrectIlluminationApply = []
-    for channel in channeldict.values():
-        CorrectIlluminationApply.append(
-            {
-                "name": "cellprofiler_core.setting.subscriber.image_subscriber._image_subscriber.ImageSubscriber",
-                "text": "Select the input image",
-                "value": f"{channel}",
-            }
-        )
-        CorrectIlluminationApply.append(
-            {
-                "name": "cellprofiler_core.setting.text.alphanumeric.name.image_name._image_name.ImageName",
-                "text": "Name the output image",
-                "value": f"{channel.replace('Orig', '')}",
-            }
-        )
-        CorrectIlluminationApply.append(
-            {
-                "name": "cellprofiler_core.setting.subscriber.image_subscriber._image_subscriber.ImageSubscriber",
-                "text": "Select the illumination function",
-                "value": f"Illum{channel.replace('Orig', '')}",
-            }
-        )
-        CorrectIlluminationApply.append(
-            {
-                "name": "cellprofiler_core.setting.choice._choice.Choice",
-                "text": "Select how the illumination function is applied",
-                "value": "Divide",
-            }
-        )
-    CorrectIlluminationApply.append(
-        {
-            "name": "cellprofiler_core.setting._binary.Binary",
-            "text": "Set output image values less than 0 equal to 0?",
-            "value": "Yes",
-        }
-    )
-    CorrectIlluminationApply.append(
-        {
-            "name": "cellprofiler_core.setting._binary.Binary",
-            "text": "Set output image values greater than 1 equal to 1?",
-            "value": "Yes",
-        }
-    )
-
-    pipeline["modules"][2]["settings"] = CorrectIlluminationApply
+    pipeline["modules"][4]["settings"][0]["value"] = Nuclei_channel.replace("Orig", "")
+    # IdentifySecondaryObjects
+    pipeline["modules"][6]["settings"][3]["value"] = Cells_channel.replace("Orig", "")
+    # MeasureObjectIntensity
+    pipeline["modules"][8]["settings"][0]["value"] = ', '.join(list(channeldict.values()))
+    # MeasureImageIntensity
+    pipeline["modules"][9]["settings"][0]["value"] = ', '.join(list(channeldict.values()))
+    # Rescale Intensity
+    pipeline["modules"][11]["settings"][0]["value"] = Nuclei_channel
+    # Rescale Intensity
+    pipeline["modules"][12]["settings"][0]["value"] = Cells_channel
 
 
 def make_5_pipeline(channeldict, Nuclei_channel, Cells_channel):
@@ -173,4 +142,53 @@ def make_5_pipeline(channeldict, Nuclei_channel, Cells_channel):
     with open(f"/tmp/5_RunSegment.json", "w") as f:
         json.dump(pipeline, f, indent=4)
 
-    return
+
+# CorrectIlluminationApply
+"""
+    CorrectIlluminationApply = []
+    for channel in channeldict.values():
+        CorrectIlluminationApply.append(
+            {
+                "name": "cellprofiler_core.setting.subscriber.image_subscriber._image_subscriber.ImageSubscriber",
+                "text": "Select the input image",
+                "value": f"{channel}",
+            }
+        )
+        CorrectIlluminationApply.append(
+            {
+                "name": "cellprofiler_core.setting.text.alphanumeric.name.image_name._image_name.ImageName",
+                "text": "Name the output image",
+                "value": f"{channel.replace('Orig', '')}",
+            }
+        )
+        CorrectIlluminationApply.append(
+            {
+                "name": "cellprofiler_core.setting.subscriber.image_subscriber._image_subscriber.ImageSubscriber",
+                "text": "Select the illumination function",
+                "value": f"Illum{channel.replace('Orig', '')}",
+            }
+        )
+        CorrectIlluminationApply.append(
+            {
+                "name": "cellprofiler_core.setting.choice._choice.Choice",
+                "text": "Select how the illumination function is applied",
+                "value": "Divide",
+            }
+        )
+    CorrectIlluminationApply.append(
+        {
+            "name": "cellprofiler_core.setting._binary.Binary",
+            "text": "Set output image values less than 0 equal to 0?",
+            "value": "Yes",
+        }
+    )
+    CorrectIlluminationApply.append(
+        {
+            "name": "cellprofiler_core.setting._binary.Binary",
+            "text": "Set output image values greater than 1 equal to 1?",
+            "value": "Yes",
+        }
+    )
+
+    pipeline["modules"][2]["settings"] = CorrectIlluminationApply
+"""

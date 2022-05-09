@@ -1,13 +1,13 @@
 {
     "has_image_plane_details": false,
     "date_revision": 421,
-    "module_count": 16,
+    "module_count": 19,
     "modules": [
         {
             "attributes": {
                 "module_num": 1,
                 "notes": [],
-                "show_window": false,
+                "show_window": true,
                 "wants_pause": false,
                 "svn_version": "Unknown",
                 "enabled": true,
@@ -20,12 +20,12 @@
                 {
                     "name": "cellprofiler_core.setting.text._directory.Directory",
                     "text": "Input data file location",
-                    "value": "Default Input Folder|Desktop\\load_data_csv\\2021_04_20_Target2\\BR00121431"
+                    "value": "Default Input Folder|"
                 },
                 {
                     "name": "cellprofiler_core.setting.text._filename.Filename",
                     "text": "Name of the file",
-                    "value": "load_data_with_illum_local.csv"
+                    "value": "load_data.csv"
                 },
                 {
                     "name": "cellprofiler_core.setting._binary.Binary",
@@ -45,17 +45,17 @@
                 {
                     "name": "cellprofiler_core.setting.range.integer_range._integer_range.IntegerRange",
                     "text": "Rows to process",
-                    "value": "3457,6912"
+                    "value": "1,100000"
                 },
                 {
                     "name": "cellprofiler_core.setting._binary.Binary",
                     "text": "Group images by metadata?",
-                    "value": "Yes"
+                    "value": "No"
                 },
                 {
                     "name": "cellprofiler_core.setting.multichoice._multichoice.MultiChoice",
                     "text": "Select metadata tags for grouping",
-                    "value": "Plate,Well"
+                    "value": ""
                 },
                 {
                     "name": "cellprofiler_core.setting._binary.Binary",
@@ -67,123 +67,9 @@
         {
             "attributes": {
                 "module_num": 2,
-                "notes": [],
-                "show_window": false,
-                "wants_pause": false,
-                "svn_version": "Unknown",
-                "enabled": true,
-                "variable_revision_number": 4,
-                "batch_state": "array([], dtype=uint8)",
-                "module_name": "FlagImage",
-                "module_path": "cellprofiler.modules.flagimage.FlagImage"
-            },
-            "settings": [
-                {
-                    "name": "cellprofiler_core.setting._hidden_count.HiddenCount",
-                    "text": "Hidden",
-                    "value": "1"
-                },
-                {
-                    "name": "cellprofiler_core.setting._hidden_count.HiddenCount",
-                    "text": "Hidden",
-                    "value": "1"
-                },
-                {
-                    "name": "cellprofiler_core.setting.text._text.Text",
-                    "text": "Name the flag's category",
-                    "value": "Metadata"
-                },
-                {
-                    "name": "cellprofiler_core.setting.text._text.Text",
-                    "text": "Name the flag",
-                    "value": "QCFlag"
-                },
-                {
-                    "name": "cellprofiler_core.setting.choice._choice.Choice",
-                    "text": "How should measurements be linked?",
-                    "value": "Flag if any fail"
-                },
-                {
-                    "name": "cellprofiler_core.setting._binary.Binary",
-                    "text": "Skip image set if flagged?",
-                    "value": "Yes"
-                },
-                {
-                    "name": "cellprofiler_core.setting.choice._choice.Choice",
-                    "text": "Flag is based on",
-                    "value": "Whole-image measurement"
-                },
-                {
-                    "name": "cellprofiler_core.setting.subscriber._label_subscriber.LabelSubscriber",
-                    "text": "Select the object to be used for flagging",
-                    "value": "None"
-                },
-                {
-                    "name": "cellprofiler_core.setting._measurement.Measurement",
-                    "text": "Which measurement?",
-                    "value": "Metadata_Site"
-                },
-                {
-                    "name": "cellprofiler_core.setting._binary.Binary",
-                    "text": "Flag images based on low values?",
-                    "value": "Yes"
-                },
-                {
-                    "name": "cellprofiler_core.setting.text.number._float.Float",
-                    "text": "Minimum value",
-                    "value": "1.9"
-                },
-                {
-                    "name": "cellprofiler_core.setting._binary.Binary",
-                    "text": "Flag images based on high values?",
-                    "value": "Yes"
-                },
-                {
-                    "name": "cellprofiler_core.setting.text.number._float.Float",
-                    "text": "Maximum value",
-                    "value": "2.1"
-                },
-                {
-                    "name": "cellprofiler_core.setting.text._directory.Directory",
-                    "text": "Rules file location",
-                    "value": "Elsewhere...|"
-                },
-                {
-                    "name": "cellprofiler_core.setting.text._filename.Filename",
-                    "text": "Rules file name",
-                    "value": "rules.txt"
-                },
-                {
-                    "name": "cellprofiler_core.setting.multichoice._multichoice.MultiChoice",
-                    "text": "Class number",
-                    "value": ""
-                },
-                {
-                    "name": "cellprofiler_core.setting._binary.Binary",
-                    "text": "Ignore flag skips on last cycle?",
-                    "value": "No"
-                }
-            ]
-        },
-        {
-            "attributes": {
-                "module_num": 3,
-                "notes": [],
-                "show_window": false,
-                "wants_pause": false,
-                "svn_version": "Unknown",
-                "enabled": true,
-                "variable_revision_number": 5,
-                "batch_state": "array([], dtype=uint8)",
-                "module_name": "CorrectIlluminationApply",
-                "module_path": "cellprofiler.modules.correctilluminationapply.CorrectIlluminationApply"
-            },
-            "settings": []
-        },
-        {
-            "attributes": {
-                "module_num": 4,
-                "notes": [],
+                "notes": [
+                    "This module measures per-image QC features, except for thresholds."
+                ],
                 "show_window": false,
                 "wants_pause": false,
                 "svn_version": "Unknown",
@@ -257,7 +143,7 @@
                 {
                     "name": "cellprofiler_core.setting._binary.Binary",
                     "text": "Calculate intensity metrics?",
-                    "value": "Yes"
+                    "value": "No"
                 },
                 {
                     "name": "cellprofiler_core.setting._binary.Binary",
@@ -267,7 +153,7 @@
                 {
                     "name": "cellprofiler_core.setting._binary.Binary",
                     "text": "Use all thresholding methods?",
-                    "value": "Yes"
+                    "value": "No"
                 },
                 {
                     "name": "cellprofiler_core.setting.choice._choice.Choice",
@@ -298,8 +184,189 @@
         },
         {
             "attributes": {
-                "module_num": 5,
-                "notes": [],
+                "module_num": 3,
+                "notes": [
+                    "This module calculates automatic thresholds in both the DNA and RNA channels."
+                ],
+                "show_window": false,
+                "wants_pause": false,
+                "svn_version": "Unknown",
+                "enabled": true,
+                "variable_revision_number": 6,
+                "batch_state": "array([], dtype=uint8)",
+                "module_name": "MeasureImageQuality",
+                "module_path": "cellprofiler.modules.measureimagequality.MeasureImageQuality"
+            },
+            "settings": [
+                {
+                    "name": "cellprofiler_core.setting.choice._choice.Choice",
+                    "text": "Calculate metrics for which images?",
+                    "value": "Select..."
+                },
+                {
+                    "name": "cellprofiler_core.setting._hidden_count.HiddenCount",
+                    "text": "Image count",
+                    "value": "2"
+                },
+                {
+                    "name": "cellprofiler_core.setting._hidden_count.HiddenCount",
+                    "text": "Scale count",
+                    "value": "1"
+                },
+                {
+                    "name": "cellprofiler_core.setting._hidden_count.HiddenCount",
+                    "text": "Threshold count",
+                    "value": "1"
+                },
+                {
+                    "name": "cellprofiler_core.setting._hidden_count.HiddenCount",
+                    "text": "Scale count",
+                    "value": "1"
+                },
+                {
+                    "name": "cellprofiler_core.setting._hidden_count.HiddenCount",
+                    "text": "Threshold count",
+                    "value": "1"
+                },
+                {
+                    "name": "cellprofiler_core.setting.subscriber.list_subscriber._image_list_subscriber.ImageListSubscriber",
+                    "text": "Select the images to measure",
+                    "value": "OrigDNA"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Include the image rescaling value?",
+                    "value": "No"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Calculate blur metrics?",
+                    "value": "No"
+                },
+                {
+                    "name": "cellprofiler_core.setting.text.number.integer._integer.Integer",
+                    "text": "Spatial scale for blur measurements",
+                    "value": "20"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Calculate saturation metrics?",
+                    "value": "No"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Calculate intensity metrics?",
+                    "value": "No"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Calculate thresholds?",
+                    "value": "Yes"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Use all thresholding methods?",
+                    "value": "No"
+                },
+                {
+                    "name": "cellprofiler_core.setting.choice._choice.Choice",
+                    "text": "Select a thresholding method",
+                    "value": "Otsu"
+                },
+                {
+                    "name": "cellprofiler_core.setting.text.number._float.Float",
+                    "text": "Typical fraction of the image covered by objects",
+                    "value": "0.1"
+                },
+                {
+                    "name": "cellprofiler_core.setting.choice._choice.Choice",
+                    "text": "Two-class or three-class thresholding?",
+                    "value": "Two classes"
+                },
+                {
+                    "name": "cellprofiler_core.setting.choice._choice.Choice",
+                    "text": "Minimize the weighted variance or the entropy?",
+                    "value": "Weighted variance"
+                },
+                {
+                    "name": "cellprofiler_core.setting.choice._choice.Choice",
+                    "text": "Assign pixels in the middle intensity class to the foreground or the background?",
+                    "value": "Background"
+                },
+                {
+                    "name": "cellprofiler_core.setting.subscriber.list_subscriber._image_list_subscriber.ImageListSubscriber",
+                    "text": "Select the images to measure",
+                    "value": "OrigRNA"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Include the image rescaling value?",
+                    "value": "No"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Calculate blur metrics?",
+                    "value": "No"
+                },
+                {
+                    "name": "cellprofiler_core.setting.text.number.integer._integer.Integer",
+                    "text": "Spatial scale for blur measurements",
+                    "value": "20"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Calculate saturation metrics?",
+                    "value": "No"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Calculate intensity metrics?",
+                    "value": "No"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Calculate thresholds?",
+                    "value": "Yes"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Use all thresholding methods?",
+                    "value": "No"
+                },
+                {
+                    "name": "cellprofiler_core.setting.choice._choice.Choice",
+                    "text": "Select a thresholding method",
+                    "value": "Otsu"
+                },
+                {
+                    "name": "cellprofiler_core.setting.text.number._float.Float",
+                    "text": "Typical fraction of the image covered by objects",
+                    "value": "0.1"
+                },
+                {
+                    "name": "cellprofiler_core.setting.choice._choice.Choice",
+                    "text": "Two-class or three-class thresholding?",
+                    "value": "Three classes"
+                },
+                {
+                    "name": "cellprofiler_core.setting.choice._choice.Choice",
+                    "text": "Minimize the weighted variance or the entropy?",
+                    "value": "Weighted variance"
+                },
+                {
+                    "name": "cellprofiler_core.setting.choice._choice.Choice",
+                    "text": "Assign pixels in the middle intensity class to the foreground or the background?",
+                    "value": "Foreground"
+                }
+            ]
+        },
+        {
+            "attributes": {
+                "module_num": 4,
+                "notes": [
+                    "Performs a calculation to remove background and fluorescent noise in each image.",
+                    "Note that this correction is applied only to images used for identifying nuclei. CellPainting analysis measurements are NOT taken on images that have undergone this correction."
+                ],
                 "show_window": false,
                 "wants_pause": false,
                 "svn_version": "Unknown",
@@ -313,7 +380,7 @@
                 {
                     "name": "cellprofiler_core.setting.subscriber.image_subscriber._image_subscriber.ImageSubscriber",
                     "text": "Select the input image",
-                    "value": "DNA"
+                    "value": "OrigDNA"
                 },
                 {
                     "name": "cellprofiler_core.setting.text.alphanumeric.name.image_name._image_name.ImageName",
@@ -429,8 +496,11 @@
         },
         {
             "attributes": {
-                "module_num": 6,
-                "notes": [],
+                "module_num": 5,
+                "notes": [
+                    "Applies the illumination correction from the previous module to the DNA image.",
+                    "Note that this correction is applied only to images used for identifying nuclei. CellPainting analysis measurements are NOT taken on images that have undergone this correction."
+                ],
                 "show_window": false,
                 "wants_pause": false,
                 "svn_version": "Unknown",
@@ -444,7 +514,7 @@
                 {
                     "name": "cellprofiler_core.setting.subscriber.image_subscriber._image_subscriber.ImageSubscriber",
                     "text": "Select the input image",
-                    "value": "DNA"
+                    "value": "OrigDNA"
                 },
                 {
                     "name": "cellprofiler_core.setting.text.alphanumeric.name.image_name._image_name.ImageName",
@@ -475,12 +545,20 @@
         },
         {
             "attributes": {
-                "module_num": 7,
+                "module_num": 6,
                 "notes": [
-                    "Problem now: detects some nuclei together",
-                    "local maxima from 15 to 10 or 12?"
+                    "Identify the nuclei based on the DNA image. Objects are used for per-object QC measurements but this module and all subsequent modules (other than ExportToSpreadsheet) can be unchecked if you only want only whole-image QC measurements.",
+                    "The settings here were chosen based on the image data and acqusition settings provided in Cimini et al., Nature Protocols, 2022. Changing the image acqusition settings may affect a number of these parameters. You should optimize these parameters until they perform well to identify nuclei in your particular dataset.",
+                    "Typical diameter of objects: From the display window menu select Tools > Measure length. Click/drag to measure diameters of a few select nuclei.",
+                    "Thresholding strategy: Global works fine in most cases but Adaptive may work better if the background has non-uniform illumination. However",
+                    " the illumination correction in CorrectIlluminationApply should mitigate the latter.",
+                    "Thresholding method: Select the method which provides the best foreground/background separation. Adjust the threshold corrrection factor if the threshold is consistently above/below where you want it to be for most images tested. ",
+                    "Lower threshold bound: Mouse over the background region to see the intensity variation in the lower-right of the display window.",
+                    "Method to distinguish clumped objects: Use Intensity if the intensity gradient dividing touching nuclei are pretty clear even if clumpy. Use Shape if the nuclei are usually well-separated (and Intensity doesnt work).",
+                    "Method to draw dividing lines between clumped objects: Intensity usually gives more realistic-looking boundary lines.",
+                    "Size of smoothing filter/minimum distance between local maxima: Override defaults if nuclei are getting under/over-segmented."
                 ],
-                "show_window": true,
+                "show_window": false,
                 "wants_pause": false,
                 "svn_version": "Unknown",
                 "enabled": true,
@@ -523,7 +601,7 @@
                 {
                     "name": "cellprofiler_core.setting.choice._choice.Choice",
                     "text": "Method to draw dividing lines between clumped objects",
-                    "value": "Intensity"
+                    "value": "Shape"
                 },
                 {
                     "name": "cellprofiler_core.setting.text.number.integer._integer.Integer",
@@ -593,7 +671,7 @@
                 {
                     "name": "cellprofiler_core.setting.text.number._float.Float",
                     "text": "Threshold correction factor",
-                    "value": "1"
+                    "value": "1.5"
                 },
                 {
                     "name": "cellprofiler_core.setting.range._float_range.FloatRange",
@@ -664,13 +742,11 @@
         },
         {
             "attributes": {
-                "module_num": 8,
+                "module_num": 7,
                 "notes": [
-                    "maybe RNA+ER?  when no RNA, using AGP or ER?  Probably AGP, but whatever works!  AGP is better (shows cleaner cell edge)",
-                    "",
-                    "for BR00117062a--> maybe the upper thresh from 0.035 to 0.031"
+                    "Identify the cells using the nuclei objects plus an image representative of the cell body. Several of the channels could suffice for this purpose, but we chose the RNA channel as optimal. Using the \u0093Watershed-Image\u0094 option over the default \u0093Propagate\u0094 methods seems to often better capture the cell boundaries, especially when the cells are confluent."
                 ],
-                "show_window": true,
+                "show_window": false,
                 "wants_pause": false,
                 "svn_version": "Unknown",
                 "enabled": true,
@@ -698,7 +774,7 @@
                 {
                     "name": "cellprofiler_core.setting.subscriber.image_subscriber._image_subscriber.ImageSubscriber",
                     "text": "Select the input image",
-                    "value": "RNA"
+                    "value": "OrigRNA"
                 },
                 {
                     "name": "cellprofiler_core.setting.text.number.integer._integer.Integer",
@@ -824,8 +900,10 @@
         },
         {
             "attributes": {
-                "module_num": 9,
-                "notes": [],
+                "module_num": 8,
+                "notes": [
+                    "The cytoplasm is identified as the cell body \u0093\"minus\"\u0094 the nuclei."
+                ],
                 "show_window": false,
                 "wants_pause": true,
                 "svn_version": "Unknown",
@@ -860,8 +938,114 @@
         },
         {
             "attributes": {
+                "module_num": 9,
+                "notes": [
+                    "Measures the intensity of Cells and Nuclei objects in the fluorescent images."
+                ],
+                "show_window": false,
+                "wants_pause": false,
+                "svn_version": "Unknown",
+                "enabled": true,
+                "variable_revision_number": 4,
+                "batch_state": "array([], dtype=uint8)",
+                "module_name": "MeasureObjectIntensity",
+                "module_path": "cellprofiler.modules.measureobjectintensity.MeasureObjectIntensity"
+            },
+            "settings": [
+                {
+                    "name": "cellprofiler_core.setting.subscriber.list_subscriber._image_list_subscriber.ImageListSubscriber",
+                    "text": "Select images to measure",
+                    "value": "OrigAGP, OrigDNA, OrigER, OrigMito, OrigRNA"
+                },
+                {
+                    "name": "cellprofiler_core.setting.subscriber.list_subscriber._label_list_subscriber.LabelListSubscriber",
+                    "text": "Select objects to measure",
+                    "value": "Cells, Nuclei"
+                }
+            ]
+        },
+        {
+            "attributes": {
                 "module_num": 10,
-                "notes": [],
+                "notes": [
+                    "Measures the intensity of the whole image only in areas with Cells and Nuclei objects in the fluorescent images."
+                ],
+                "show_window": false,
+                "wants_pause": false,
+                "svn_version": "Unknown",
+                "enabled": true,
+                "variable_revision_number": 4,
+                "batch_state": "array([], dtype=uint8)",
+                "module_name": "MeasureImageIntensity",
+                "module_path": "cellprofiler.modules.measureimageintensity.MeasureImageIntensity"
+            },
+            "settings": [
+                {
+                    "name": "cellprofiler_core.setting.subscriber.list_subscriber._image_list_subscriber.ImageListSubscriber",
+                    "text": "Select images to measure",
+                    "value": "OrigAGP, OrigDNA, OrigER, OrigMito, OrigRNA"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Measure the intensity only from areas enclosed by objects?",
+                    "value": "Yes"
+                },
+                {
+                    "name": "cellprofiler_core.setting.subscriber.list_subscriber._label_list_subscriber.LabelListSubscriber",
+                    "text": "Select input object sets",
+                    "value": "Cells, Nuclei"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Calculate custom percentiles",
+                    "value": "No"
+                },
+                {
+                    "name": "cellprofiler_core.setting.text._text.Text",
+                    "text": "Specify percentiles to measure",
+                    "value": "10,90"
+                }
+            ]
+        },
+        {
+            "attributes": {
+                "module_num": 11,
+                "notes": [
+                    "Measures the size and shape of Cells and Nuclei objects."
+                ],
+                "show_window": false,
+                "wants_pause": false,
+                "svn_version": "Unknown",
+                "enabled": true,
+                "variable_revision_number": 3,
+                "batch_state": "array([], dtype=uint8)",
+                "module_name": "MeasureObjectSizeShape",
+                "module_path": "cellprofiler.modules.measureobjectsizeshape.MeasureObjectSizeShape"
+            },
+            "settings": [
+                {
+                    "name": "cellprofiler_core.setting.subscriber.list_subscriber._label_list_subscriber.LabelListSubscriber",
+                    "text": "Select object sets to measure",
+                    "value": "Cells, Nuclei"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Calculate the Zernike features?",
+                    "value": "No"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Calculate the advanced features?",
+                    "value": "No"
+                }
+            ]
+        },
+        {
+            "attributes": {
+                "module_num": 12,
+                "notes": [
+                    "This module rescales the DNA image so that it is easy to see by eye."
+                ],
                 "show_window": false,
                 "wants_pause": false,
                 "svn_version": "Unknown",
@@ -875,12 +1059,12 @@
                 {
                     "name": "cellprofiler_core.setting.subscriber.image_subscriber._image_subscriber.ImageSubscriber",
                     "text": "Select the input image",
-                    "value": "DNA"
+                    "value": "OrigDNA"
                 },
                 {
                     "name": "cellprofiler_core.setting.text.alphanumeric.name.image_name._image_name.ImageName",
                     "text": "Name the output image",
-                    "value": "RescaleDNA"
+                    "value": "RescaleNuclei"
                 },
                 {
                     "name": "cellprofiler_core.setting.choice._choice.Choice",
@@ -936,8 +1120,10 @@
         },
         {
             "attributes": {
-                "module_num": 11,
-                "notes": [],
+                "module_num": 13,
+                "notes": [
+                    "This module rescales the AGP image so that it is easy to see by eye."
+                ],
                 "show_window": false,
                 "wants_pause": false,
                 "svn_version": "Unknown",
@@ -951,12 +1137,12 @@
                 {
                     "name": "cellprofiler_core.setting.subscriber.image_subscriber._image_subscriber.ImageSubscriber",
                     "text": "Select the input image",
-                    "value": "AGP"
+                    "value": "OrigRNA"
                 },
                 {
                     "name": "cellprofiler_core.setting.text.alphanumeric.name.image_name._image_name.ImageName",
                     "text": "Name the output image",
-                    "value": "RescaleAGP"
+                    "value": "RescaleCells"
                 },
                 {
                     "name": "cellprofiler_core.setting.choice._choice.Choice",
@@ -1012,8 +1198,10 @@
         },
         {
             "attributes": {
-                "module_num": 12,
-                "notes": [],
+                "module_num": 14,
+                "notes": [
+                    "This module combines the rescaled Nuclei and Cells images into a single color image for visualization by eye."
+                ],
                 "show_window": false,
                 "wants_pause": false,
                 "svn_version": "Unknown",
@@ -1037,17 +1225,17 @@
                 {
                     "name": "cellprofiler_core.setting.subscriber.image_subscriber._image_subscriber.ImageSubscriber",
                     "text": "Select the image to be colored red",
-                    "value": "RescaleDNA"
+                    "value": "RescaleNuclei"
                 },
                 {
                     "name": "cellprofiler_core.setting.subscriber.image_subscriber._image_subscriber.ImageSubscriber",
                     "text": "Select the image to be colored green",
-                    "value": "RescaleAGP"
+                    "value": "RescaleCells"
                 },
                 {
                     "name": "cellprofiler_core.setting.subscriber.image_subscriber._image_subscriber.ImageSubscriber",
                     "text": "Select the image to be colored blue",
-                    "value": "RescaleDNA"
+                    "value": "RescaleNuclei"
                 },
                 {
                     "name": "cellprofiler_core.setting.text.alphanumeric.name.image_name._image_name.ImageName",
@@ -1133,8 +1321,10 @@
         },
         {
             "attributes": {
-                "module_num": 13,
-                "notes": [],
+                "module_num": 15,
+                "notes": [
+                    "This module further modifies the color image to make it easier to see by eye."
+                ],
                 "show_window": false,
                 "wants_pause": false,
                 "svn_version": "Unknown",
@@ -1234,8 +1424,10 @@
         },
         {
             "attributes": {
-                "module_num": 14,
-                "notes": [],
+                "module_num": 16,
+                "notes": [
+                    "This module overlays the nuclei and cell segmented objects onto the image that is rescaled for visualization."
+                ],
                 "show_window": false,
                 "wants_pause": false,
                 "svn_version": "Unknown",
@@ -1259,7 +1451,7 @@
                 {
                     "name": "cellprofiler_core.setting.text.alphanumeric.name.image_name._image_name.ImageName",
                     "text": "Name the output image",
-                    "value": "OrigOverlay2"
+                    "value": "Overlay"
                 },
                 {
                     "name": "cellprofiler_core.setting.choice._choice.Choice",
@@ -1300,8 +1492,10 @@
         },
         {
             "attributes": {
-                "module_num": 15,
-                "notes": [],
+                "module_num": 17,
+                "notes": [
+                    "This module saves the overlay image created for visualizing object segmentation."
+                ],
                 "show_window": false,
                 "wants_pause": false,
                 "svn_version": "Unknown",
@@ -1320,7 +1514,7 @@
                 {
                     "name": "cellprofiler_core.setting.subscriber.image_subscriber._image_subscriber.ImageSubscriber",
                     "text": "Select the image to save",
-                    "value": "OrigOverlay2"
+                    "value": "Overlay"
                 },
                 {
                     "name": "cellprofiler_core.setting.choice._choice.Choice",
@@ -1335,7 +1529,7 @@
                 {
                     "name": "cellprofiler_core.setting.text._text.Text",
                     "text": "Enter single file name",
-                    "value": "\\g<Plate>\\g<Well>"
+                    "value": "\\g<Plate>_\\g<Well>_\\g<Site>"
                 },
                 {
                     "name": "cellprofiler_core.setting.text.number.integer._integer.Integer",
@@ -1370,7 +1564,7 @@
                 {
                     "name": "cellprofiler_core.setting._binary.Binary",
                     "text": "Overwrite existing files without warning?",
-                    "value": "No"
+                    "value": "Yes"
                 },
                 {
                     "name": "cellprofiler_core.setting.choice._choice.Choice",
@@ -1380,7 +1574,7 @@
                 {
                     "name": "cellprofiler_core.setting._binary.Binary",
                     "text": "Record the file and path information to the saved image?",
-                    "value": "No"
+                    "value": "Yes"
                 },
                 {
                     "name": "cellprofiler_core.setting._binary.Binary",
@@ -1406,8 +1600,10 @@
         },
         {
             "attributes": {
-                "module_num": 16,
-                "notes": [],
+                "module_num": 18,
+                "notes": [
+                    "This module saves .csv\u2019s with ALL of the measurements taken in the pipeline."
+                ],
                 "show_window": false,
                 "wants_pause": false,
                 "svn_version": "Unknown",
@@ -1426,7 +1622,7 @@
                 {
                     "name": "cellprofiler_core.setting._binary.Binary",
                     "text": "Add image metadata columns to your object data file?",
-                    "value": "No"
+                    "value": "Yes"
                 },
                 {
                     "name": "cellprofiler_core.setting._binary.Binary",
@@ -1512,6 +1708,175 @@
                     "name": "cellprofiler.modules.exporttospreadsheet.EEObjectNameSubscriber",
                     "text": "Data to export",
                     "value": "Do not use"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Combine these object measurements with those of the previous object?",
+                    "value": "No"
+                },
+                {
+                    "name": "cellprofiler_core.setting.text._text.Text",
+                    "text": "File name",
+                    "value": "DATA.csv"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Use the object name for the file name?",
+                    "value": "Yes"
+                }
+            ]
+        },
+        {
+            "attributes": {
+                "module_num": 19,
+                "notes": [
+                    "This module saves .csv\u2019s with a subset of results taken in the pipeline. It may simplify downstream workflows to work with the subsetted .csv\u2019s.",
+                    ""
+                ],
+                "show_window": false,
+                "wants_pause": false,
+                "svn_version": "Unknown",
+                "enabled": true,
+                "variable_revision_number": 13,
+                "batch_state": "array([], dtype=uint8)",
+                "module_name": "ExportToSpreadsheet",
+                "module_path": "cellprofiler.modules.exporttospreadsheet.ExportToSpreadsheet"
+            },
+            "settings": [
+                {
+                    "name": "cellprofiler_core.setting.choice._custom_choice.CustomChoice",
+                    "text": "Select the column delimiter",
+                    "value": "Comma (\",\")"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Add image metadata columns to your object data file?",
+                    "value": "Yes"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Add image file and folder names to your object data file?",
+                    "value": "No"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Select the measurements to export",
+                    "value": "Yes"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Calculate the per-image mean values for object measurements?",
+                    "value": "No"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Calculate the per-image median values for object measurements?",
+                    "value": "No"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Calculate the per-image standard deviation values for object measurements?",
+                    "value": "No"
+                },
+                {
+                    "name": "cellprofiler_core.setting.text._directory.Directory",
+                    "text": "Output file location",
+                    "value": "Default Output Folder|"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Create a GenePattern GCT file?",
+                    "value": "No"
+                },
+                {
+                    "name": "cellprofiler_core.setting.choice._choice.Choice",
+                    "text": "Select source of sample row name",
+                    "value": "Metadata"
+                },
+                {
+                    "name": "cellprofiler_core.setting.subscriber.image_subscriber._image_subscriber.ImageSubscriber",
+                    "text": "Select the image to use as the identifier",
+                    "value": "None"
+                },
+                {
+                    "name": "cellprofiler_core.setting._measurement.Measurement",
+                    "text": "Select the metadata to use as the identifier",
+                    "value": "None"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Export all measurement types?",
+                    "value": "No"
+                },
+                {
+                    "name": "cellprofiler_core.setting.multichoice._measurement_multichoice.MeasurementMultiChoice",
+                    "text": "Press button to select measurements",
+                    "value": "Image|Intensity_MADIntensity_OrigMito_Cells,Image|Intensity_MADIntensity_OrigER_Cells,Image|Intensity_MADIntensity_OrigDNA_Cells,Image|Intensity_MADIntensity_OrigAGP_Cells,Image|Intensity_MADIntensity_OrigRNA_Cells,Image|Intensity_MedianIntensity_OrigER_Cells,Image|Intensity_MedianIntensity_OrigRNA_Cells,Image|Intensity_MedianIntensity_OrigMito_Cells,Image|Intensity_MedianIntensity_OrigAGP_Cells,Image|Intensity_MedianIntensity_OrigDNA_Cells,Image|PathName_OrigOverlay2,Image|Count_Cells,Image|FileName_OrigOverlay2,Image|Metadata_WellCol,Image|Metadata_Well,Image|Metadata_WellRow,Image|Metadata_Plate,Nuclei|Intensity_MedianIntensity_OrigDNA,Nuclei|Intensity_MedianIntensity_OrigRNA,Nuclei|AreaShape_Area,Cells|Intensity_MedianIntensity_OrigAGP,Cells|Intensity_MedianIntensity_OrigMito,Cells|Intensity_MedianIntensity_OrigRNA,Cells|Intensity_MedianIntensity_OrigER,Cells|AreaShape_Perimeter,Cells|AreaShape_Area"
+                },
+                {
+                    "name": "cellprofiler_core.setting.choice._choice.Choice",
+                    "text": "Representation of Nan/Inf",
+                    "value": "NaN"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Add a prefix to file names?",
+                    "value": "Yes"
+                },
+                {
+                    "name": "cellprofiler_core.setting.text._text.Text",
+                    "text": "Filename prefix",
+                    "value": "TopLine"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Overwrite existing files without warning?",
+                    "value": "Yes"
+                },
+                {
+                    "name": "cellprofiler.modules.exporttospreadsheet.EEObjectNameSubscriber",
+                    "text": "Data to export",
+                    "value": "Image"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Combine these object measurements with those of the previous object?",
+                    "value": "No"
+                },
+                {
+                    "name": "cellprofiler_core.setting.text._text.Text",
+                    "text": "File name",
+                    "value": "DATA.csv"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Use the object name for the file name?",
+                    "value": "Yes"
+                },
+                {
+                    "name": "cellprofiler.modules.exporttospreadsheet.EEObjectNameSubscriber",
+                    "text": "Data to export",
+                    "value": "Nuclei"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Combine these object measurements with those of the previous object?",
+                    "value": "No"
+                },
+                {
+                    "name": "cellprofiler_core.setting.text._text.Text",
+                    "text": "File name",
+                    "value": "Object.csv"
+                },
+                {
+                    "name": "cellprofiler_core.setting._binary.Binary",
+                    "text": "Use the object name for the file name?",
+                    "value": "Yes"
+                },
+                {
+                    "name": "cellprofiler.modules.exporttospreadsheet.EEObjectNameSubscriber",
+                    "text": "Data to export",
+                    "value": "Cells"
                 },
                 {
                     "name": "cellprofiler_core.setting._binary.Binary",
