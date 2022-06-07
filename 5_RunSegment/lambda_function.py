@@ -74,9 +74,7 @@ def lambda_handler(event, context):
     # Run DCP
     run_DCP.run_setup(bucket, prefix, batch, config_dict)
 
-    create_batch_jobs.create_batch_jobs_5(
-        project_name, pipeline_name, platelist, batch
-    )
+    create_batch_jobs.create_batch_jobs_5(project_name, pipeline_name, platelist, batch)
 
     run_DCP.run_cluster(bucket, prefix, batch, len(platelist) * 384, config_dict)
 

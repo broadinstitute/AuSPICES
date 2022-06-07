@@ -86,9 +86,13 @@ def make_3_pipeline(channeldict, Nuclei_channel, Cells_channel):
     # IdentifySecondaryObjects
     pipeline["modules"][6]["settings"][3]["value"] = Cells_channel.replace("Orig", "")
     # MeasureObjectIntensity
-    pipeline["modules"][8]["settings"][0]["value"] = ', '.join(list(channeldict.values()))
+    pipeline["modules"][8]["settings"][0]["value"] = ", ".join(
+        list(channeldict.values())
+    )
     # MeasureImageIntensity
-    pipeline["modules"][9]["settings"][0]["value"] = ', '.join(list(channeldict.values()))
+    pipeline["modules"][9]["settings"][0]["value"] = ", ".join(
+        list(channeldict.values())
+    )
     # Rescale Intensity
     pipeline["modules"][11]["settings"][0]["value"] = Nuclei_channel
     # Rescale Intensity
@@ -142,6 +146,7 @@ def make_5_pipeline(channeldict, Nuclei_channel, Cells_channel):
     with open(f"/tmp/5_RunSegment.json", "w") as f:
         json.dump(pipeline, f, indent=4)
 
+
 def make_7_pipeline(channeldict, Nuclei_channel, Cells_channel):
     with open(f"/var/task/pipeline.json") as f:
         pipeline = json.load(f)
@@ -151,7 +156,7 @@ def make_7_pipeline(channeldict, Nuclei_channel, Cells_channel):
     g.close()
 
     orig_channel_list = list(channeldict.values())
-    corrected_channel_list = [x.replace('Orig','') for x in channeldict.values()]
+    corrected_channel_list = [x.replace("Orig", "") for x in channeldict.values()]
 
     # CorrectIlluminationApply
     CorrectIlluminationApply = []
@@ -217,7 +222,7 @@ def make_7_pipeline(channeldict, Nuclei_channel, Cells_channel):
     # MeasureTexture
     pipeline["modules"][16]["settings"][0]["value"] = corrected_channel_list
     # Special mito features
-    if not any('mito' in x.lower() for x in channeldict.values()):
+    if not any("mito" in x.lower() for x in channeldict.values()):
         pipeline["modules"][17]["attributes"]["enabled"] = False
         pipeline["modules"][18]["attributes"]["enabled"] = False
         pipeline["modules"][19]["attributes"]["enabled"] = False
@@ -234,7 +239,9 @@ def make_7_pipeline(channeldict, Nuclei_channel, Cells_channel):
         counter += 1
     # MeasureImageIntensity
     pipeline_end[0]["attributes"]["module_num"] = 27 + counter
-    pipeline_end[0]["settings"][0] = corrected_channel_list + [f"{x}__BackgroundOnly" for x in corrected_channel_list]
+    pipeline_end[0]["settings"][0] = corrected_channel_list + [
+        f"{x}__BackgroundOnly" for x in corrected_channel_list
+    ]
     pipeline["modules"][26 + counter] = pipeline_end[0]
     # ExportToSpreadsheet
     pipeline_end[1]["attributes"]["module_num"] = 28 + counter

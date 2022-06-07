@@ -23,6 +23,7 @@ config_dict = {
     "NECESSARY_STRING": "",
 }
 
+
 def lambda_handler(event, context):
     project_name = event["project_name"]
     batch = event["batch"]
@@ -36,7 +37,7 @@ def lambda_handler(event, context):
     include_plates = event["include_plates"]
     platelist = []
     for x in event["Output_0"]["Payload"]:
-        shortplate = x["plate"].split('__')[0]
+        shortplate = x["plate"].split("__")[0]
         platelist.append(shortplate)
     if exclude_plates:
         platelist = [i for i in platelist if i not in exclude_plates]
@@ -56,6 +57,6 @@ def lambda_handler(event, context):
 
     create_batch_jobs.create_batch_jobs_7(project_name, pipeline_name, platelist, batch)
 
-    run_DCP.run_cluster(bucket, prefix, batch, len(platelist)*384, config_dict)
+    run_DCP.run_cluster(bucket, prefix, batch, len(platelist) * 384, config_dict)
 
     run_DCP.setup_monitor(bucket, prefix, config_dict)

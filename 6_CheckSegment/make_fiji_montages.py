@@ -1,7 +1,7 @@
-#@String bucket
-#@String project
-#@String batch
-#@String plate
+# @String bucket
+# @String project
+# @String batch
+# @String plate
 
 from ij import IJ
 import os
@@ -15,7 +15,9 @@ if not os.path.exists(localtemp):
 if not os.path.exists(outfolder):
     os.mkdir(outfolder)
 
-s3_start_path = "s3://" + bucket + "/projects/" + project + "/workspace/segment/" + batch
+s3_start_path = (
+    "s3://" + bucket + "/projects/" + project + "/workspace/segment/" + batch
+)
 
 cmd = [
     "aws",
@@ -55,7 +57,7 @@ sampleimage = os.listdir(thisfolder)[0]
 IJ.run("Image Sequence...", "open=" + os.path.join(thisfolder, sampleimage) + " sort")
 IJ.run("Make Montage...", "columns=24 rows=16 scale=1")
 im = IJ.getImage()
-outname = plate + '.tif'
+outname = plate + ".tif"
 IJ.saveAs("Tiff", os.path.join(outfolder, outname))
 IJ.run("Close All")
 

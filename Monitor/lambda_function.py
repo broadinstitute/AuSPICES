@@ -8,7 +8,7 @@ ecs = boto3.client("ecs")
 ec2 = boto3.client("ec2")
 cloudwatch = boto3.client("cloudwatch")
 sqs = boto3.client("sqs")
-sfn = boto3.client("sfn")
+sfn = boto3.client("stepfunctions")
 
 bucket = "BUCKET_NAME"
 
@@ -64,9 +64,11 @@ def downscaleSpotFleet(queue, spotFleetID):
 
 
 def lambda_handler(event, lambda_context):
-    messagestring = (data['Records'][0]['Sns']['Message'])
+    # Triggered any time SQS queue ApproximateNumberOfMessagesVisible = 0
+    # OR ApproximateNumberOfMessagesNotVisible = 0
+    messagestring = event["Records"][0]["Sns"]["Message"]
     messagedict = json.loads(messagestring)
-    queueId = messagedict['Trigger']['Dimensions'][0]['value']
+    queueId = messagedict["Trigger"]["Dimensions"][0]["value"]
     project = queueId.rsplit("_", 1)[0]
 
     # Download monitor file
@@ -90,14 +92,17 @@ def lambda_handler(event, lambda_context):
     fleetId = monitorInfo["MONITOR_FLEET_ID"]
     loggroupId = monitorInfo["MONITOR_LOG_GROUP_NAME"]
     starttime = monitorInfo["MONITOR_START_TIME"]
+    print(f"Monitor triggered for {monitorcluster} {monitorapp} {fleetId} {loggroupId}")
 
     # If no visible messages, downscale machines
     if "ApproximateNumberOfMessagesVisible" in event["Records"][0]["Sns"]["Message"]:
+        print("No visible messages. Tidying as we go.")
         killdeadAlarms(fleetId, monitorapp, project)
         downscaleSpotFleet(queueId, fleetId)
 
     # If no messages in progress, cleanup
     if "ApproximateNumberOfMessagesNotVisible" in event["Records"][0]["Sns"]["Message"]:
+        print("No messages in progress. Cleaning up.")
         ecs.update_service(
             cluster=monitorcluster, service=f"{monitorapp}Service", desiredCount=0,
         )
@@ -167,10 +172,10 @@ def lambda_handler(event, lambda_context):
         print("Removing alarms that triggered Monitor")
         cloudwatch.delete_alarms(
             AlarmNames=[
-                "ApproximateNumberOfMessagesVisibleisZero",
-                "ApproximateNumberOfMessagesNotVisibleisZero",
+                f"ApproximateNumberOfMessagesVisibleisZero_{monitorapp}",
+                f"ApproximateNumberOfMessagesNotVisibleisZero_{monitorapp}",
             ]
         )
 
         print("Sending success token to StepFunction.")
-        sfn.send_task_success(taskToken='string', output='string')
+        sfn.send_task_success(taskToken="string", output="string")
