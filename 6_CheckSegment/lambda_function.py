@@ -22,35 +22,34 @@ config_dict = {
 
 
 def lambda_handler(event, context):
-    if event["run_segment"]:
-        prefix = f"projects/{event['project_name']}/workspace/"
-        bucket = event["bucket"]
-        batch = event["batch"]
-        config_dict["APP_NAME"] = event["project_name"] + "_Montage"
-        project_name = event["project_name"]
+    prefix = f"projects/{event['project_name']}/workspace/"
+    bucket = event["bucket"]
+    batch = event["batch"]
+    config_dict["APP_NAME"] = event["project_name"] + "_Montage"
+    project_name = event["project_name"]
 
-        # Include/Exclude Plates
-        exclude_plates = event["exclude_plates"]
-        include_plates = event["include_plates"]
-        platelist = []
-        for x in event["Output_0"]["Payload"]:
-            shortplate = x["plate"].split("__")[0]
-            platelist.append(shortplate)
-        if exclude_plates:
-            platelist = [i for i in platelist if i not in exclude_plates]
-        if include_plates:
-            platelist = include_plates
+    # Include/Exclude Plates
+    exclude_plates = event["exclude_plates"]
+    include_plates = event["include_plates"]
+    platelist = []
+    for x in event["Output_0"]["Payload"]:
+        shortplate = x["plate"].split("__")[0]
+        platelist.append(shortplate)
+    if exclude_plates:
+        platelist = [i for i in platelist if i not in exclude_plates]
+    if include_plates:
+        platelist = include_plates
 
-        config_dict["EXPECTED_NUMBER_FILES"] = 0
+    config_dict["EXPECTED_NUMBER_FILES"] = 0
 
-        run_DCP.run_setup(bucket, prefix, batch, config_dict, type="FIJI")
+    run_DCP.run_setup(bucket, prefix, batch, config_dict, type="FIJI")
 
-        # make the jobs
-        create_batch_jobs.create_batch_jobs_6(
-            bucket, project_name, batch, platelist,
-        )
+    # make the jobs
+    create_batch_jobs.create_batch_jobs_6(
+        bucket, project_name, batch, platelist,
+    )
 
-        # Start a cluster
-        run_DCP.run_cluster(bucket, prefix, batch, len(platelist), config_dict)
+    # Start a cluster
+    run_DCP.run_cluster(bucket, prefix, batch, len(platelist), config_dict)
 
-        run_DCP.setup_monitor(bucket, prefix, config_dict)
+    run_DCP.setup_monitor(bucket, prefix, config_dict)

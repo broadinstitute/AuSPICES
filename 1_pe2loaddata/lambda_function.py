@@ -14,10 +14,6 @@ s3 = boto3.client("s3")
 
 
 def lambda_handler(event, lambda_context):
-    if not event["run_pe2loaddata"]:
-        print("Skipping pe2loaddata as set in input.")
-        return
-
     platename_replacementdict = event["platename_replacementdict"]
     fullplate = event["trigger"]["plate"]
     plate = fullplate.split("__")[0]
