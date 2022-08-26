@@ -92,6 +92,11 @@ def lambda_handler(event, lambda_context):
                 csv_with_illum_df["Metadata_Plate"] = newname
                 csv_with_illum_df.to_csv(illum_output, index=False)
                 plate = newname
+                output_on_bucket_name = (
+                    f"projects/{project_name}/workspace/load_data_csv/{batch}/{plate}/load_data.csv"
+                    )
+                illum_output_on_bucket_name = f"projects/{project_name}/workspace/load_data_csv/{batch}/{plate}/load_data_with_illum.csv"
+                zproj_output_on_bucket_name = f"projects/{project_name}/workspace/load_data_csv/{batch}/{plate}/load_data_unprojected.csv"
 
     if event["zproject"]:
         print("CSVs will include z-projection.")
