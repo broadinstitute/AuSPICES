@@ -1,4 +1,5 @@
 import boto3
+import time
 
 def lambda_handler(event, lambda_context):
     instance_list = []
@@ -32,6 +33,7 @@ def lambda_handler(event, lambda_context):
                         deleted_alarm_count += 1
                         print(f"{eachalarm['AlarmName']} belongs to an instance that no longer exists. Deleting")
                         cw.delete_alarms(AlarmNames = [eachalarm['AlarmName']])
+                        time.sleep(1) #avoid throttling
                     else:
                         print(f"Not deleting {eachalarm['AlarmName']}, belongs to an instance that still exists")
                 else:
