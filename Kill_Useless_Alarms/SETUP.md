@@ -1,17 +1,16 @@
-Kill_Old_Dashboards is a lambda function that removes old CloudWatch Dashboards.
+Kill_Useless_Alarms is a lambda function that removes CloudWatch Alarms related to instances that no longer exist.
 
-Kill_Old_Dashboards checks for CloudWatch Dashboards every day.
-It removes any Dashboards that were created more than 3 days before (timing is configurable).
-It will not remove any Dashboards that have 'Keep' in their name.
+Kill_Useless_Alarms checks for defunct CloudWatch Alarms every day.
+Instances that were recently killed (such that they exist in state "Terminated" as opposed to don't exist at all) will be deleted the following day.
 
 # Setup Lambda Function
 
 *Create a new lambda functions.*
 
-## Function Kill_Old_Dashboards
+## Function Kill_Useless_Alarms
 
 ### Basic information
-**Function name**:`Kill_Old_Dashboards`  
+**Function name**:`Kill_Useless_Alarms`  
 **Runtime**: Python 3.8 or Python 3.9  
 **Permissions**: **Execution role**: Use an existing role:  `LambdaFullAccess`
 
@@ -30,8 +29,7 @@ If it does not:
 **Retry attempts**: 0
 
 ### Configure the lambda function code
-* Copy Kill_Old_Dashboards/`lambda_function.py` into the code area.
-* If you would like for the Dashboard removal age to be anything other than 3 days, edit the `timedelta`
+* Copy Kill_Useless_Alarms/`lambda_function.py` into the code area.
 * Deploy.
 
 # Setup EventBridge Rules
@@ -48,4 +46,4 @@ If it does not:
 ### Target 1:
 **Target type**: AWS service
 **Select a target**: Lambda function
-**Function**: Kill_Old_Dashboards
+**Function**: Kill_Useless_Alarms
