@@ -2,6 +2,8 @@ import boto3
 import time
 
 def lambda_handler(event, lambda_context):
+    
+    ## Part 1: let's document all the instances we know about, in any state
     instance_list = []
     alarm_count = 0
     deleted_alarm_count = 0
@@ -22,6 +24,9 @@ def lambda_handler(event, lambda_context):
         else:
             all_instances=True
     print(f"{len(instance_list)} instances found (in any state)")
+
+    ## Part 2: Let's look at all the MetricAlarms we have that are specifically monitoring an instance's functioning in some way
+    ## Any alarm that monitors an instances that EC2 doesn't have a record of anymore should be deleted
     alarms = cw.describe_alarms(AlarmTypes=['MetricAlarm'])
     all_alarms = False
     while all_alarms == False:
@@ -45,5 +50,3 @@ def lambda_handler(event, lambda_context):
         else:
             all_alarms=True
     print(f"{deleted_alarm_count} alarms deleted (of {alarm_count} total alarms)")
-
-alarm_killer()
