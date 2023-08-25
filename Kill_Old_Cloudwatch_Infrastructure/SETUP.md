@@ -1,9 +1,9 @@
-Kill_Old_Cloudwatch_Infrastructure is a lambda function that removes old CloudWatch Dashboards and CloudWatch Log Groups.
+Kill_Old_Cloudwatch_Infrastructure is a lambda function that removes old CloudWatch Dashboards, Log Groups and Alarms.
 
-Kill_Old_Cloudwatch_Infrastructure is triggered once per day (timing is configurable). 
-It removes any Cloudwatch Dashboards that were created more than 3 days before (timing is configurable).
-It will not remove any Dashboards that have 'Keep' in their name.
-It also removes any empty Cloudwatch Log Groups.
+Kill_Old_Cloudwatch_Infrastructure is triggered once per day (timing is configurable in the EventBridge rule). 
+It removes any Cloudwatch Dashboards (excluding those with 'keep' in their name) that were created more than 3 days before (timing is configurable in the lambda function).
+It removes any empty Cloudwatch Log Groups.
+It also removes any alarms with a state of `INSUFFICIENT_DATA` that reached that state more than 1 day before (timing is configurable in the lambda function).
 
 # Setup Lambda Function
 
