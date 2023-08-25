@@ -1,8 +1,9 @@
-Kill_Old_Dashboards is a lambda function that removes old CloudWatch Dashboards.
+Kill_Old_Cloudwatch_Infrastructure is a lambda function that removes old CloudWatch Dashboards and CloudWatch Log Groups.
 
-Kill_Old_Dashboards checks for CloudWatch Dashboards every day.
-It removes any Dashboards that were created more than 3 days before (timing is configurable).
+Kill_Old_Cloudwatch_Infrastructure is triggered once per day (timing is configurable). 
+It removes any Cloudwatch Dashboards that were created more than 3 days before (timing is configurable).
 It will not remove any Dashboards that have 'Keep' in their name.
+It also removes any empty Cloudwatch Log Groups.
 
 # Setup Lambda Function
 
@@ -11,7 +12,7 @@ It will not remove any Dashboards that have 'Keep' in their name.
 ## Function Kill_Old_Dashboards
 
 ### Basic information
-**Function name**:`Kill_Old_Dashboards`  
+**Function name**:`Kill_Old_Cloudwatch_Infrastructure`  
 **Runtime**: Python 3.8 or Python 3.9  
 **Permissions**: **Execution role**: Use an existing role:  `LambdaFullAccess`
 
@@ -30,7 +31,7 @@ If it does not:
 **Retry attempts**: 0
 
 ### Configure the lambda function code
-* Copy Kill_Old_Dashboards/`lambda_function.py` into the code area.
+* Copy Kill_Old_Cloudwatch_Infrastructure/`lambda_function.py` into the code area.
 * If you would like for the Dashboard removal age to be anything other than 3 days, edit the `timedelta`
 * Deploy.
 
@@ -48,4 +49,4 @@ If it does not:
 ### Target 1:
 **Target type**: AWS service
 **Select a target**: Lambda function
-**Function**: Kill_Old_Dashboards
+**Function**: Kill_Old_Cloudwatch_Infrastructure
