@@ -14,7 +14,7 @@ Instances that exist in state "Terminated" (i.e. were recently killed) still exi
 
 *Create a new lambda functions.*
 
-## Function Kill_Old_Dashboards
+## Function Kill_Old_Cloudwatch_Infrastructure
 
 ### Basic information
 **Function name**:`Kill_Old_Cloudwatch_Infrastructure`  
@@ -40,18 +40,23 @@ If it does not:
 * If you would like for the Dashboard removal age to be anything other than 3 days, edit the `timedelta`
 * Deploy.
 
-# Setup EventBridge Rules
+# Setup EventBridge Schedule
 
-*Create a new rule in Amazon EventBridge that will trigger the lambda function.*
+*Create a new schedule in Amazon EventBridge that will trigger the lambda function.*
 
-### Rule detail
-**Name**: every_day
+### Specify schedule detail
+**Name**: every_day  
 **Rule type**: Schedule
 
 ### Schedule pattern:
-**A regular rate**: 1 Days
+**Occurrence**: Recurring schedule  
+**Schedule typ**: Rate-based schedule  
+**Rate expression**: rate (1 days)
 
-### Target 1:
-**Target type**: AWS service
-**Select a target**: Lambda function
+### Target detail:
+**Target API**: Templated targets, AwS Lambda Invoke
 **Function**: Kill_Old_Cloudwatch_Infrastructure
+
+### Settings:
+**Retry policy and dead-letter queue**: Retry policy OFF
+**Permissions**: Create role
