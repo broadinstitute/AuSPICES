@@ -28,14 +28,14 @@ Attach permissions policies: CloudWatchLogsFullAccess
 Entity = AWS service
 Use case = Lambda
 Role name = LambdaFullAccess
-Attach permissions policies: AmazonSQSFullAccess, AmazonS3FullAccess, AmazonEC2SpotFleetTaggingRole, AmazonECS_FullAccess, AWSLambdaExecute, AWSLambdaSQSQueueExecutionRole, AmazonSNSFullAccess, AWSLambdaRole, AWSLambda_FullAccess
+Attach permissions policies: AmazonSQSFullAccess, AmazonS3FullAccess, AmazonEC2SpotFleetTaggingRole, AmazonECS_FullAccess, AWSLambdaExecute, AWSLambdaSQSQueueExecutionRole, AmazonSNSFullAccess, AWSLambda_FullAccess, AWSStepFunctionsFullAccess, CloudwatchFullAccess
 
 ## Create layers:
 ### Create instance for layer creation
 Create a t2.micro instance in EC2 for lambda layer creation.  
 AME = Amazon Linux 2 AMI (HVM), SSD Volume Type.  
 Use the same network, subnet, and IAM as you usually use.  
-Install python3 and update it to 3.8 or 3.9.  
+Install python3 and update it to 3.9.  
 
 ### Create and publish `pe2loaddata` layer
 ```
@@ -63,6 +63,8 @@ chmod 400 data_plotting.zip
 aws lambda publish-layer-version --layer-name data_plotting --zip-file fileb://data_plotting.zip --compatible-runtimes python3.8
 mv python data_plotting
 ```
+
+### Create and publish `lambda_functions` layer
 
 ## Lambda Setup:
 For each function, step 0-7:
@@ -95,8 +97,13 @@ Add necessary layers (listed below).
 Step | Layers Needed | Functions Needed
 --|--|--
 0_setup | - | -
-1_pe2loaddata | pe2loaddata (custom layer) | config.yml
-4_checkqc | data_plotting (custom layer) | -
+1_pe2loaddata | pe2loaddata (custom layer), aws_data_wrangler, lambda_functions | config.yml
+2_IllumCorr | lambda_functions | pipeline_pieces.json
+3_RunQC | lambda_functions | pipeline.json
+4_CheckQC | data_plotting (custom layer) | -
+5_RunSegment | lambda_functions | -
+6_CheckSegment | - | -
+7_Analysis | lambda_functions | -
 
 ## Step Function Setup:
 
