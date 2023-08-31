@@ -8,7 +8,7 @@ sns = boto3.client("sns")
 
 # Set for each implementation of function
 queue_url = "https://sqs.region.amazonaws.com/123456789123/Killed_Machines_List"
-bucket = "bucket-name"
+account_name = "account-name"
 sns_arn = "arn:aws:sns:region:123456789123:Kill_Nameless_Machines_Email_Notification"
 
 
@@ -60,7 +60,7 @@ def lambda_handler(event, lambda_context):
                 )
 
                 try:
-                    msg = f"Spot fleet request {spot_request_id} in {bucket} was cancelled by Kill_Nameless_Machines."
+                    msg = f"Spot fleet request {spot_request_id} in {account_name} was cancelled by Kill_Nameless_Machines."
                     sns.publish(TopicArn=sns_arn, Message=msg)
                 except:
                     print(
@@ -77,7 +77,7 @@ def lambda_handler(event, lambda_context):
 
     if len(instance_id_list) > 0:
         try:
-            msg = f"{len(instance_id_list)} instances terminated in {bucket} by Kill_Nameless_Machines"
+            msg = f"{len(instance_id_list)} instances terminated in {account_name} by Kill_Nameless_Machines"
             sns.publish(TopicArn=sns_arn, Message=msg)
         except:
             print("Failed at email notification of killed instance")
