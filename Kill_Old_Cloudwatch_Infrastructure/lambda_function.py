@@ -17,8 +17,8 @@ def lambda_handler(event, lambda_context):
             age = datetime.now(timezone.utc) - entry["LastModified"]
             if age > timedelta(days=3):
                 todel_list.append(entry["DashboardName"])
-
-    CloudWatch.delete_dashboards(DashboardNames=todel_list)
+    if len(todel_list) > 0:
+        CloudWatch.delete_dashboards(DashboardNames=todel_list)
 
     # Kill Old Log Groups
     log_groups = CloudWatchLogs.describe_log_groups()
