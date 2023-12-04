@@ -2,6 +2,7 @@ import boto3
 import datetime
 import botocore
 import json
+import time
 
 s3 = boto3.client("s3")
 ecs = boto3.client("ecs")
@@ -66,6 +67,10 @@ def downscaleSpotFleet(queue, spotFleetID):
 def lambda_handler(event, lambda_context):
     # Triggered any time SQS queue ApproximateNumberOfMessagesVisible = 0
     # OR ApproximateNumberOfMessagesNotVisible = 0
+
+    # Wait for 2 minutes before retrieving queue metrics
+    time.sleep(2*60)
+
     messagestring = event["Records"][0]["Sns"]["Message"]
     messagedict = json.loads(messagestring)
     queueId = messagedict["Trigger"]["Dimensions"][0]["value"]
