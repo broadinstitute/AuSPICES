@@ -21,6 +21,7 @@ def lambda_handler(event, lambda_context):
     batch = event["batch"]
     bucket = event["bucket"]
     channeldict = event["channeldict"]
+    bucket_out = event["bucket_out"]
 
     # Import channel_dicts
     if type(channeldict) is dict:
@@ -113,7 +114,7 @@ def lambda_handler(event, lambda_context):
     if event["zproject"]:
         print("CSVs will include z-projection.")
         with open(output, "rb") as a:
-            s3.put_object(Body=a, Bucket=bucket, Key=zproj_output_on_bucket_name)
+            s3.put_object(Body=a, Bucket=bucket_out, Key=zproj_output_on_bucket_name)
         csv_df = pd.read_csv(output)
         final_z = max(csv_df["Metadata_PlaneID"].unique())
         csv_df = csv_df.loc[csv_df["Metadata_PlaneID"] == final_z]
@@ -137,13 +138,13 @@ def lambda_handler(event, lambda_context):
             
         csv_df.to_csv(output, index=False)
         with open(output, "rb") as a:
-            s3.put_object(Body=a, Bucket=bucket, Key=output_on_bucket_name)
+            s3.put_object(Body=a, Bucket=bucket_out, Key=output_on_bucket_name)
         csv_with_illum_df.to_csv(illum_output, index=False)
         with open(illum_output, "rb") as a:
-            s3.put_object(Body=a, Bucket=bucket, Key=illum_output_on_bucket_name)
+            s3.put_object(Body=a, Bucket=bucket_out, Key=illum_output_on_bucket_name)
     else:
         print("CSVs will not include z-projection.")
         with open(output, "rb") as a:
-            s3.put_object(Body=a, Bucket=bucket, Key=output_on_bucket_name)
+            s3.put_object(Body=a, Bucket=bucket_out, Key=output_on_bucket_name)
         with open(illum_output, "rb") as a:
-            s3.put_object(Body=a, Bucket=bucket, Key=illum_output_on_bucket_name)
+            s3.put_object(Body=a, Bucket=bucket_out, Key=illum_output_on_bucket_name)
