@@ -20,7 +20,7 @@ def lambda_handler(event, lambda_context):
     else:
         print("Images will not be z-projected.")
         if bucket == 'cellpainting-gallery':
-            prefix = f"{event['project_name']}/broad/{event['project_name']}/{event['batch']}/images/"
+            prefix = f"{event['project_name']}/broad/images/{event['batch']}/images/"
         else:
             prefix = f"projects/{event['project_name']}/{event['batch']}/images/"
     

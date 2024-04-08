@@ -49,37 +49,27 @@ def lambda_handler(event, lambda_context):
 
     # in CPG, all images raw off microscope go to 'images'
     if bucket == 'cellpainting-gallery':
-        index_directory = (
-            f"s3://{bucket}/{project_name}/broad/images/{batch}/images/{plate}",
-        )
+        index_directory = f"s3://{bucket}/{project_name}/broad/images/{batch}/images/{plate}"
         index_file = f"s3://{bucket}/{project_name}/broad/images/{batch}/images/{fullplate}/Images/Index.idx.xml"
         illum_directory = f"{project_name}/broad/images/{batch}/illum/{plate}"
-        sub_string_out=project_name,
-        sub_string_in=f"/home/ubuntu/bucket/{project_name}",  
-        output_on_bucket_name = (
-        f"{project_name}/broad/workspace/load_data_csv/{batch}/{plate}/load_data.csv"
-        )
+        sub_string_out=project_name
+        sub_string_in=f"/home/ubuntu/bucket/{project_name}"
+        output_on_bucket_name = f"{project_name}/broad/workspace/load_data_csv/{batch}/{plate}/load_data.csv"
         illum_output_on_bucket_name = f"{project_name}/broad/workspace/load_data_csv/{batch}/{plate}/load_data_with_illum.csv"
         zproj_output_on_bucket_name = f"{project_name}/broad/workspace/load_data_csv/{batch}/{plate}/load_data_unprojected.csv"
   
     # in our buckets, images that will be z-projected go to 'images_unprojected'
     else:
         if event["zproject"]:
-            index_directory = (
-                f"s3://{bucket}/projects/{x}/{batch}/images_unprojected/{plate}"
-            )
+            index_directory = f"s3://{bucket}/projects/{x}/{batch}/images_unprojected/{plate}"
             index_file = f"s3://{bucket}/projects/{project_name}/{batch}/images_unprojected/{fullplate}/Images/Index.idx.xml"
         else:
-            index_directory = (
-                f"s3://{bucket}/projects/{project_name}/{batch}/images/{plate}"
-            )
+            index_directory = f"s3://{bucket}/projects/{project_name}/{batch}/images/{plate}"
             index_file = f"s3://{bucket}/projects/{project_name}/{batch}/images/{fullplate}/Images/Index.idx.xml"
         illum_directory = f"projects/{project_name}/{batch}/illum/{plate}"
         sub_string_out = "projects"
         sub_string_in = "/home/ubuntu/bucket/projects" 
-        output_on_bucket_name = (
-        f"projects/{project_name}/workspace/load_data_csv/{batch}/{plate}/load_data.csv"
-        )
+        output_on_bucket_name = f"projects/{project_name}/workspace/load_data_csv/{batch}/{plate}/load_data.csv"
         illum_output_on_bucket_name = f"projects/{project_name}/workspace/load_data_csv/{batch}/{plate}/load_data_with_illum.csv"
         zproj_output_on_bucket_name = f"projects/{project_name}/workspace/load_data_csv/{batch}/{plate}/load_data_unprojected.csv"
 
