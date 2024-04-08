@@ -6,15 +6,24 @@ s3 = boto3.client("s3")
 
 
 def lambda_handler(event, lambda_context):
+    bucket = event["bucket"]
     if event["zproject"]:
         print("Images will be z-projected.")
-        prefix = (
-            f"projects/{event['project_name']}/{event['batch']}/images_unprojected/"
-        )
+        if bucket == 'cellpainting-gallery':
+            prefix = (
+            f"{event['project_name']}/broad/{event['batch']}/images/"
+            )
+        else:
+            prefix = (
+                f"projects/{event['project_name']}/{event['batch']}/images_unprojected/"
+            )
     else:
         print("Images will not be z-projected.")
-        prefix = f"projects/{event['project_name']}/{event['batch']}/images/"
-    bucket = event["bucket"]
+        if bucket == 'cellpainting-gallery':
+            prefix = f"{event['project_name']}/broad/{event['project_name']}/{event['batch']}/images/"
+        else:
+            prefix = f"projects/{event['project_name']}/{event['batch']}/images/"
+    
     platename_replacementdict = event["platename_replacementdict"]
     platedict = s3.list_objects_v2(Bucket=bucket, Prefix=prefix, Delimiter="/")
 
