@@ -44,20 +44,43 @@ def lambda_handler(event, lambda_context):
 
     # Trigger pe2loaddata
     output = f"/tmp/load_data.csv"
-    if event["zproject"]:
-        index_directory = (
-            f"s3://{bucket}/projects/{project_name}/{batch}/images_unprojected/{plate}"
-        )
-        index_file = f"s3://{bucket}/projects/{project_name}/{batch}/images_unprojected/{fullplate}/Images/Index.idx.xml"
-    else:
-        index_directory = (
-            f"s3://{bucket}/projects/{project_name}/{batch}/images/{plate}"
-        )
-        index_file = f"s3://{bucket}/projects/{project_name}/{batch}/images/{fullplate}/Images/Index.idx.xml"
-    illum_directory = f"projects/{project_name}/{batch}/illum/{plate}"
     illum_output = f"/tmp/load_data_with_illum.csv"
-    sub_string_out = "projects"
-    sub_string_in = "/home/ubuntu/bucket/projects"
+
+    # in CPG, all images raw off microscope go to 'images'
+    if bucket == 'cellpainting-gallery':
+        index_directory = (
+            f"s3://{bucket}/{project_name}/broad/images/{batch}/images/{plate}",
+        )
+        index_file = f"s3://{bucket}/{project_name}/broad/images/{batch}/images/{fullplate}/Images/Index.idx.xml"
+        illum_directory = f"{project_name}/broad/images/{batch}/illum/{plate}"
+        sub_string_out=project_name,
+        sub_string_in=f"/home/ubuntu/bucket/{project_name}",  
+        output_on_bucket_name = (
+        f"{project_name}/broad/workspace/load_data_csv/{batch}/{plate}/load_data.csv"
+        )
+        illum_output_on_bucket_name = f"{project_name}/broad/workspace/load_data_csv/{batch}/{plate}/load_data_with_illum.csv"
+        zproj_output_on_bucket_name = f"{project_name}/broad/workspace/load_data_csv/{batch}/{plate}/load_data_unprojected.csv"
+  
+    # in our buckets, images that will be z-projected go to 'images_unprojected'
+    else:
+        if event["zproject"]:
+            index_directory = (
+                f"s3://{bucket}/projects/{x}/{batch}/images_unprojected/{plate}"
+            )
+            index_file = f"s3://{bucket}/projects/{project_name}/{batch}/images_unprojected/{fullplate}/Images/Index.idx.xml"
+        else:
+            index_directory = (
+                f"s3://{bucket}/projects/{project_name}/{batch}/images/{plate}"
+            )
+            index_file = f"s3://{bucket}/projects/{project_name}/{batch}/images/{fullplate}/Images/Index.idx.xml"
+        illum_directory = f"projects/{project_name}/{batch}/illum/{plate}"
+        sub_string_out = "projects"
+        sub_string_in = "/home/ubuntu/bucket/projects" 
+        output_on_bucket_name = (
+        f"projects/{project_name}/workspace/load_data_csv/{batch}/{plate}/load_data.csv"
+        )
+        illum_output_on_bucket_name = f"projects/{project_name}/workspace/load_data_csv/{batch}/{plate}/load_data_with_illum.csv"
+        zproj_output_on_bucket_name = f"projects/{project_name}/workspace/load_data_csv/{batch}/{plate}/load_data_unprojected.csv"
 
     pe2loaddata(
         config_file,
@@ -74,12 +97,6 @@ def lambda_handler(event, lambda_context):
     )
 
     # Upload .csvs to S3
-    output_on_bucket_name = (
-        f"projects/{project_name}/workspace/load_data_csv/{batch}/{plate}/load_data.csv"
-    )
-    illum_output_on_bucket_name = f"projects/{project_name}/workspace/load_data_csv/{batch}/{plate}/load_data_with_illum.csv"
-    zproj_output_on_bucket_name = f"projects/{project_name}/workspace/load_data_csv/{batch}/{plate}/load_data_unprojected.csv"
-
     if platename_replacementdict:
         print("Platename in CSVs changed according to platename_replacementdict")
         csv_df = pd.read_csv(output)
@@ -97,22 +114,27 @@ def lambda_handler(event, lambda_context):
         print("CSVs will include z-projection.")
         with open(output, "rb") as a:
             s3.put_object(Body=a, Bucket=bucket, Key=zproj_output_on_bucket_name)
-
         csv_df = pd.read_csv(output)
         final_z = max(csv_df["Metadata_PlaneID"].unique())
         csv_df = csv_df.loc[csv_df["Metadata_PlaneID"] == final_z]
-        csv_df = csv_df.replace(regex=r"images_unprojected", value="images")
         csv_df = csv_df.replace(regex=fullplate, value=plate)
-
         csv_with_illum_df = pd.read_csv(illum_output)
         csv_with_illum_df = csv_with_illum_df.loc[
             csv_with_illum_df["Metadata_PlaneID"] == final_z
         ]
-        csv_with_illum_df = csv_with_illum_df.replace(
-            regex=r"images_unprojected", value="images"
-        )
         csv_with_illum_df = csv_with_illum_df.replace(regex=fullplate, value=plate)
 
+        if bucket == 'cellpainting-gallery':
+            csv_df = csv_df.replace(regex=r"images", value="images_projected")
+            csv_with_illum_df = csv_with_illum_df.replace(
+                regex=r"images", value="images_projected"
+            )
+        else:
+            csv_df = csv_df.replace(regex=r"images_unprojected", value="images")
+            csv_with_illum_df = csv_with_illum_df.replace(
+                regex=r"images_unprojected", value="images"
+            )
+            
         csv_df.to_csv(output, index=False)
         with open(output, "rb") as a:
             s3.put_object(Body=a, Bucket=bucket, Key=output_on_bucket_name)
