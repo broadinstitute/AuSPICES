@@ -7,6 +7,20 @@ CloudWatch = boto3.client("cloudwatch")
 CloudWatchLogs = boto3.client("logs")
 ec2 = boto3.client('ec2')
 
+# from https://aws.amazon.com/blogs/mt/delete-empty-cloudwatch-log-streams/
+def get_log_groups(next_token=None):
+    log_group_request = {
+        'limit': 50  # Maximum
+    }
+    if next_token:
+        log_group_request['nextToken'] = next_token
+    log_groups_response = logs.describe_log_groups(**log_group_request)
+    if log_groups_response:
+        for log_group in log_groups_response['logGroups']:
+            yield log_group
+        if 'nextToken' in log_groups_response:
+            yield from get_log_groups(log_groups_response['nextToken'])
+
 def lambda_handler(event, lambda_context):
     # Kill Old Dashboards
     dashboard_list = CloudWatch.list_dashboards()
@@ -21,12 +35,13 @@ def lambda_handler(event, lambda_context):
         CloudWatch.delete_dashboards(DashboardNames=todel_list)
 
     # Kill Old Log Groups
-    log_groups = CloudWatchLogs.describe_log_groups()
-    for group in log_groups['logGroups']:
-        streams = CloudWatchLogs.describe_log_streams(logGroupName=group['logGroupName'],limit=10)
-        if streams['logStreams'] == []:
-            CloudWatchLogs.delete_log_group(logGroupName=group['logGroupName'])
-            print (f"Deleted empty log group {group['logGroupName']}")
+    for log_group in get_log_groups():
+        if 'retentionInDays' not in log_group:
+            print(f"Log group {log_group['logGroupName']} has infinite retention, skipping")
+            continue
+        if log_group['storedBytes']==0:
+            CloudWatchLogs.delete_log_group(logGroupName=log_group['logGroupName'])
+            print(f"Deleted empty log {log_group['logGroupName']}")
     
     # Kill Old Alarms
     ## With great power comes great responsibility. Enable at your own risk.
