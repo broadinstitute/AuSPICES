@@ -48,12 +48,22 @@ def lambda_handler(event, lambda_context):
         index_directory = (
             f"s3://{bucket}/projects/{project_name}/{batch}/images_unprojected/{plate}"
         )
-        index_file = f"s3://{bucket}/projects/{project_name}/{batch}/images_unprojected/{fullplate}/Images/Index.idx.xml"
+        try:
+            s3.head_object(Bucket=bucket, Key=f"projects/{project_name}/{batch}/images_unprojected/{fullplate}/Images/Index.idx.xml")
+            index_file = f"s3://{bucket}/projects/{project_name}/{batch}/images_unprojected/{fullplate}/Images/Index.idx.xml"
+        except:
+            s3.head_object(Bucket=bucket, Key=f"projects/{project_name}/{batch}/images_unprojected/{fullplate}/Images/Index.xml")
+            index_file = f"s3://{bucket}/projects/{project_name}/{batch}/images_unprojected/{fullplate}/Images/Index.xml"            
     else:
         index_directory = (
             f"s3://{bucket}/projects/{project_name}/{batch}/images/{plate}"
         )
-        index_file = f"s3://{bucket}/projects/{project_name}/{batch}/images/{fullplate}/Images/Index.idx.xml"
+        try:
+            s3.head_object(Bucket=bucket, Key=f"projects/{project_name}/{batch}/images/{fullplate}/Images/Index.idx.xml")
+            index_file = f"s3://{bucket}/projects/{project_name}/{batch}/images/{fullplate}/Images/Index.idx.xml"
+        except:
+            s3.head_object(Bucket=bucket, Key=f"projects/{project_name}/{batch}/images/{fullplate}/Images/Index.xml")
+            index_file = f"s3://{bucket}/projects/{project_name}/{batch}/images/{fullplate}/Images/Index.xml"
     illum_directory = f"projects/{project_name}/{batch}/illum/{plate}"
     illum_output = f"/tmp/load_data_with_illum.csv"
     sub_string_out = "projects"

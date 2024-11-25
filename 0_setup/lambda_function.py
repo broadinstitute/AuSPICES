@@ -35,10 +35,16 @@ def lambda_handler(event, lambda_context):
                 if shortplatename not in include_plates:
                     continue
 
-            remote_xml_file = f"{prefix}{fullplatename}/Images/Index.idx.xml"
-            xml_head_object = s3.get_object(
-                Bucket=bucket, Key=remote_xml_file, Range="bytes=0-3000"
-            )
+            try:
+                remote_xml_file = f"{prefix}{fullplatename}/Images/Index.idx.xml"
+                xml_head_object = s3.get_object(
+                    Bucket=bucket, Key=remote_xml_file, Range="bytes=0-3000"
+                )
+            except:
+                remote_xml_file = f"{prefix}{fullplatename}/Images/Index.xml"
+                xml_head_object = s3.get_object(
+                    Bucket=bucket, Key=remote_xml_file, Range="bytes=0-3000"
+                )                
             xml_head = xml_head_object["Body"].read().decode("utf-8")
             match = re.search("<Name>(.+?)</Name>", xml_head)
             if match:
