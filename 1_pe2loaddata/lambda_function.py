@@ -99,6 +99,7 @@ def lambda_handler(event, lambda_context):
     if event["zproject"]:
         print("CSVs will include z-projection.")
         zproj_output_on_bucket_name = f"projects/{project_name}/workspace/load_data_csv/{batch}/{plate}/load_data_projected.csv"
+        zproj_output_on_bucket_with_illum_name = f"projects/{project_name}/workspace/load_data_csv/{batch}/{plate}/load_data_projected_with_illum.csv"
 
         final_z = max(csv_df["Metadata_PlaneID"].unique())
         csv_df = csv_df.loc[csv_df["Metadata_PlaneID"] == final_z]
@@ -107,3 +108,10 @@ def lambda_handler(event, lambda_context):
         csv_df.to_csv(output, index=False)
         with open(output, "rb") as a:
             s3.put_object(Body=a, Bucket=bucket, Key=zproj_output_on_bucket_name)
+
+        csv_with_illum_df = csv_with_illum_df.loc[csv_with_illum_df["Metadata_PlaneID"] == final_z]
+        csv_with_illum_df = csv_with_illum_df.replace(regex=r"images", value="images_projected")
+        csv_with_illum_df = csv_with_illum_df.replace(regex=fullplate, value=plate)
+        csv_with_illum_df.to_csv(output, index=False)
+        with open(output, "rb") as a:
+            s3.put_object(Body=a, Bucket=bucket, Key=zproj_output_on_bucket_with_illum_name)
