@@ -14,7 +14,7 @@ def get_log_groups(next_token=None):
     }
     if next_token:
         log_group_request['nextToken'] = next_token
-    log_groups_response = logs.describe_log_groups(**log_group_request)
+    log_groups_response = CloudWatchLogs.describe_log_groups(**log_group_request)
     if log_groups_response:
         for log_group in log_groups_response['logGroups']:
             yield log_group
